@@ -1,0 +1,48 @@
+#clgs-log-list dt {
+    float: left;
+    font-weight: bold;
+}
+#clgs-log-list dt:after {
+    content: " – ";
+}
+#clgs-log-list dd {
+    display: block;
+    margin-inline-start: 10px;
+}
+.wp-list-table .column-category { width: 9em; }
+.wp-list-table .column-time { width: 6em; }
+.wp-list-table .column-blog { width: 9em; }
+.wp-list-table .column-user { width: 8em; }
+.wp-list-table .column-severity { width: 9em; }
+.wp-list-table tr.unseen td.category > span:first-child,
+.wp-list-table tr.unseen td.time {
+    color: #a30;
+    font-weight: bold;
+}
+input.clgs-seen, .tablenav .actions select.clgs-severity {
+    margin: 0 6px 0 3px;
+    float: none;
+}
+.clgs-severity option {
+    color: #32373c;
+}
+.clgs-severity.severity-2, .clgs-severity option[value="2"],
+.severity-2 td.severity {
+    color: #080;
+}
+.clgs-severity.severity-3, .clgs-severity option[value="3"],
+.severity-3 td.severity {
+    color: #ffa500;
+    font-weight: bold;
+}
+.clgs-severity.severity-4, .clgs-severity option[value="4"],
+.severity-4 td.severity {
+    color: #c00;
+    font-weight: bold;
+}
+.clgs-severity.severity-5, .clgs-severity option[value="5"],
+.severity-5 td.severity {
+    color: white !important;
+    background-color: #f44;
+    font-weight: bold;
+}

@@ -1,0 +1,133 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Claus Colloseus <ccprog@gmx.de>
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: custom-logging-service 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-02-05 21:18+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: custom-logging-service.php:149 includes/settings.php:49
+msgid "Custom Logging Service"
+msgstr ""
+
+#: custom-logging-service.php:150 includes/manager.php:132
+msgid "Application logs"
+msgstr ""
+
+#: custom-logging-service.php:261
+msgid "since "
+msgstr ""
+
+#: includes/class-manager-table.php:33 includes/manager.php:140
+msgid "Log category"
+msgstr ""
+
+#: includes/class-manager-table.php:34
+msgid "Time"
+msgstr ""
+
+#: includes/class-manager-table.php:35
+msgid "User"
+msgstr ""
+
+#: includes/class-manager-table.php:39
+msgid "Blog"
+msgstr ""
+
+#: includes/class-manager-table.php:41
+msgid "Severity"
+msgstr ""
+
+#: includes/class-manager-table.php:42
+msgid "Message"
+msgstr ""
+
+#: includes/class-manager-table.php:61 includes/manager.php:148
+#: includes/manager.php:198
+msgid "Delete"
+msgstr ""
+
+#: includes/class-manager-table.php:62
+msgid "Mark as read"
+msgstr ""
+
+#: includes/class-manager-table.php:122
+msgid "Show old entries:"
+msgstr ""
+
+#: includes/class-manager-table.php:124
+msgid "Minimum Severity:"
+msgstr ""
+
+#: includes/class-manager-table.php:148
+msgid "Filter"
+msgstr ""
+
+#: includes/class-manager-table.php:163
+msgid "New entry"
+msgstr ""
+
+#: includes/class-manager-table.php:230
+msgid "Mark all as read"
+msgstr ""
+
+#: includes/manager.php:15
+#, php-format
+msgid "%d unseen Log entries"
+msgstr ""
+
+#: includes/manager.php:144 includes/manager.php:194
+msgid "Remove all log entries from this category"
+msgstr ""
+
+#: includes/manager.php:145 includes/manager.php:195
+msgid "Clear"
+msgstr ""
+
+#: includes/manager.php:147 includes/manager.php:197
+msgid "Delete this log category permanently (with all entries)"
+msgstr ""
+
+#: includes/manager.php:150
+msgid "Show all categories"
+msgstr ""
+
+#: includes/manager.php:161
+msgid "New log entries from all categories"
+msgstr ""
+
+#: includes/manager.php:182
+msgid "Log categories"
+msgstr ""
+
+#: includes/settings.php:6
+msgid "Minimum severity for notification in administration menu"
+msgstr ""
+
+#: includes/settings.php:11
+msgid "Default minimum severity filter on the log page"
+msgstr ""
+
+#: includes/settings.php:16
+msgid "Roles that can use the logs page"
+msgstr ""
+
+#: includes/settings.php:21
+msgid "Log entries per page"
+msgstr ""
+
+#: includes/settings.php:95
+#, php-format
+msgid "The setting %s was invalid, nothing saved."
+msgstr ""

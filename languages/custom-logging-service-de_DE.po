@@ -1,0 +1,133 @@
+# German translations for custom-logging-service package.
+# Copyright (C) 2016 Claus Colloseus <ccprog@gmx.de>
+# This file is distributed under the same license as the custom-logging-service package.
+# Claus Colloseus <ccprog@gmx.de>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: custom-logging-service 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2016-02-05 21:18+0100\n"
+"PO-Revision-Date: 2016-02-05 21:18+0100\n"
+"Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: custom-logging-service.php:149 includes/settings.php:49
+msgid "Custom Logging Service"
+msgstr "Custom Logging Service"
+
+#: custom-logging-service.php:150 includes/manager.php:132
+msgid "Application logs"
+msgstr "Anwendungs-Logs"
+
+#: custom-logging-service.php:261
+msgid "since "
+msgstr "seit "
+
+#: includes/class-manager-table.php:33 includes/manager.php:140
+msgid "Log category"
+msgstr "Log-Kategorie"
+
+#: includes/class-manager-table.php:34
+msgid "Time"
+msgstr "Zeit"
+
+#: includes/class-manager-table.php:35
+msgid "User"
+msgstr "Benutzer"
+
+#: includes/class-manager-table.php:39
+msgid "Blog"
+msgstr "Blog"
+
+#: includes/class-manager-table.php:41
+msgid "Severity"
+msgstr "Schweregrad"
+
+#: includes/class-manager-table.php:42
+msgid "Message"
+msgstr "Nachricht"
+
+#: includes/class-manager-table.php:61 includes/manager.php:148
+#: includes/manager.php:198
+msgid "Delete"
+msgstr "Löschen"
+
+#: includes/class-manager-table.php:62
+msgid "Mark as read"
+msgstr "Als gelesen markieren"
+
+#: includes/class-manager-table.php:122
+msgid "Show old entries:"
+msgstr "Zeige alte Einträge:"
+
+#: includes/class-manager-table.php:124
+msgid "Minimum Severity:"
+msgstr "Kleinster Schweregrad:"
+
+#: includes/class-manager-table.php:148
+msgid "Filter"
+msgstr "Filtern"
+
+#: includes/class-manager-table.php:163
+msgid "New entry"
+msgstr "Neuer Eintrag"
+
+#: includes/class-manager-table.php:230
+msgid "Mark all as read"
+msgstr "Alle als gelesen markieren"
+
+#: includes/manager.php:15
+#, php-format
+msgid "%d unseen Log entries"
+msgstr "%d ungesehene Log-Einträge"
+
+#: includes/manager.php:144 includes/manager.php:194
+msgid "Remove all log entries from this category"
+msgstr "Alle Log-Einträge aus dieser Kategorie entfernen"
+
+#: includes/manager.php:145 includes/manager.php:195
+msgid "Clear"
+msgstr "Leeren"
+
+#: includes/manager.php:147 includes/manager.php:197
+msgid "Delete this log category permanently (with all entries)"
+msgstr "Diese Log-Kategorie (mit allen Einträgen) dauerhaft löschen"
+
+#: includes/manager.php:150
+msgid "Show all categories"
+msgstr "Zeige alle Kategorien"
+
+#: includes/manager.php:161
+msgid "New log entries from all categories"
+msgstr "Neue Log-Einträge aus allen Kategorien"
+
+#: includes/manager.php:182
+msgid "Log categories"
+msgstr "Log-Kategorien"
+
+#: includes/settings.php:6
+msgid "Minimum severity for notification in administration menu"
+msgstr "Mindestschweregrad für Benachrichtigungen im Administrationsmenü"
+
+#: includes/settings.php:11
+msgid "Default minimum severity filter on the log page"
+msgstr "Standard-Mindestschweregrad auf der Log-Seite"
+
+#: includes/settings.php:16
+msgid "Roles that can use the logs page"
+msgstr "Rollen, die die Log-Seite nutzen können"
+
+#: includes/settings.php:21
+msgid "Log entries per page"
+msgstr "Log-Einträge pro Seite"
+
+#: includes/settings.php:95
+#, php-format
+msgid "The setting %s was invalid, nothing saved."
+msgstr "Die Einstellung %s war ungültig, nichts gespeichert."

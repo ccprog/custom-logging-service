@@ -1,0 +1,9 @@
+{
+  "name": "custom-logging-service",
+  "version": "1.0.0",
+  "devDependencies": {
+    "grunt": "~0.4.4",
+    "grunt-pot": "~0.1.2",
+    "grunt-po2mo": "~0.1.0"
+  }
+}
