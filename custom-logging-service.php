@@ -11,7 +11,7 @@ Description: Provides a simple API for storing miscellaneous log entries and dis
 License: GPL2
 
 Copyright Claus Colloseus 2016
-Based on  http://wordpress.org/extend/plugins/custom-logging-service
+Based on  https://wordpress.org/plugins/wordpress-logging-service/
 Copyright 2011-2013 Zaantar (email: zaantar@zaantar.eu)
 
     This program is free software; you can redistribute it and/or modify
