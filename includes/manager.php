@@ -97,7 +97,7 @@ add_action( 'init', 'clgs_manager_action' );
  * @return void
  */
 function clgs_manager_page() {
-    global $pagenow, $clgs_last_log, $clgs_db;
+    global $pagenow, $clgs_db;
 
 	extract( clgs_get_settings() );
 

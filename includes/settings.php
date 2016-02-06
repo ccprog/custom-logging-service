@@ -219,10 +219,8 @@ function clgs_save_network_settings () {
     $settings = clgs_sanitize( $_POST[ CLGS_SETTINGS ] );
     update_site_option( CLGS_SETTINGS, $settings );
 
-    add_filter('wp_redirect', 'clgs_export_url');
+    add_filter('wp_redirect', function ($url) {
+        return admin_url( 'network/settings.php?page=' . CLGS_OPTION_PAGE );
+    });
 }
 add_action('network_admin_edit_clgs_update', 'clgs_save_network_settings');
-
-function clgs_export_url ($url) {
-    return admin_url( 'network/settings.php?page=' . CLGS_OPTION_PAGE );;
-}
