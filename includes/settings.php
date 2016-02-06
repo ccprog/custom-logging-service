@@ -1,4 +1,9 @@
 <?php
+/**
+ * sanitation/validation rules and description localization for settings
+ *
+ * @var array
+ */
 $clgs_settings_structure = array(
     'notification_severity_filter' => array(
         'sanitize' => 'int',
@@ -22,6 +27,11 @@ $clgs_settings_structure = array(
     )
 );
 
+/**
+ * default settings values
+ *
+ * @var array
+ */
 $clgs_settings_defaults = array(
     'notification_severity_filter' => 0,
     'def_severity_filter' => 2,
@@ -29,6 +39,13 @@ $clgs_settings_defaults = array(
     'log_entries_per_page' => 100
 );
 
+/**
+ * writes default settings to DB option
+ *
+ * @global array $clgs_settings_defaults
+ *
+ * @return void
+ */
 function clgs_add_settings () {
     global $clgs_settings_defaults;
 
@@ -42,6 +59,11 @@ function clgs_add_settings () {
     }
 }
 
+/**
+ * echos settings page
+ *
+ * @return void
+ */
 function clgs_settings_page () { 
 
 ?>
@@ -61,6 +83,13 @@ function clgs_settings_page () {
 
 }
 
+/**
+ * inits setting fields for settings page
+ *
+ * @global array $clgs_settings_structure
+ *
+ * @return void
+ */
 function clgs_settings_init () { 
     global $clgs_settings_structure;
 
@@ -85,6 +114,13 @@ function clgs_settings_init () {
 }
 add_action( 'admin_init', 'clgs_settings_init' );
 
+/**
+ * sanitation function for settings page
+ *
+ * @global array $clgs_settings_structure
+ *
+ * @return array sane settings, unaltered in case of an error
+ */
 function clgs_sanitize ( $input ) {
     global $clgs_settings_structure;
 
@@ -100,6 +136,15 @@ function clgs_sanitize ( $input ) {
     return array_merge($original, $result );
 }
 
+/**
+ * echos setting input field
+ *
+ * @global array $severity_list
+ *
+ * @param array $args(mixed) field info
+ *
+ * @return void
+ */
 function clgs_field_render( $args ) { 
     global $severity_list;
 
@@ -145,6 +190,14 @@ function clgs_field_render( $args ) {
     }
 }
 
+/**
+ * synch role capabilities on settings update
+ *
+ * @param array $old_value old settings values
+ * @param array $value altered settings values
+ *
+ * @return void
+ */
 function clgs_update_capabilities ( $old_value, $value ) {
     $removed = array_diff( $old_value['manager_role'], $value['manager_role'] );
     foreach ($removed as $name ) {
@@ -157,6 +210,11 @@ function clgs_update_capabilities ( $old_value, $value ) {
 }
 add_action ( "update_option_" . CLGS_SETTINGS, 'clgs_update_capabilities', 10, 2 );
 
+/**
+ * save settings in multisite environment
+ *
+ * @return void
+ */
 function clgs_save_network_settings () {
     check_admin_referer( CLGS_SETTINGS . '-options' );
     if ( !current_user_can( 'manage_network_options' ) ) wp_die();

@@ -2,18 +2,49 @@
 
 if ( !class_exists( 'WP_List_Table' ) ) require( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 
-/** @see http://codex.wordpress.org/Class_Reference/WP_List_Table
- *  @see http://wordpress.org/extend/plugins/custom-list-table-example/
+/**
+ * Log entries List Table
+ *
+ *  @see http://codex.wordpress.org/Class_Reference/WP_List_Table
  */
 class Clgs_Manager_Table extends WP_List_Table
 {
 
+    /**
+     * cache of rendered items
+	 *
+	 * @access private
+	 * @var array
+     */
 	private $_seen_entries;
 
+    /**
+     * plugin settings
+	 *
+	 * @access private
+	 * @var array
+     */
 	private $settings;
+    /**
+     * entry selection data
+	 *
+	 * @access private
+	 * @var array
+     */
     private $where;
+    /**
+     * entry ordering data
+	 *
+	 * @access private
+	 * @var array
+     */
     private $order;
 
+    /**
+     * Constructor gets stored data from DB
+	 *
+	 * @access public
+     */
 	function __construct( ) {
 				
 		$this->_seen_entries = array();
@@ -27,6 +58,13 @@ class Clgs_Manager_Table extends WP_List_Table
 	    ) );
 	}
 
+	/**
+	 * Get a list of columns.
+     *
+	 * @access public
+	 *
+	 * @return array
+	 */
 	function get_columns() {
 		$columns = array(
 			'cb' => '<input type="checkbox" />',
@@ -44,6 +82,13 @@ class Clgs_Manager_Table extends WP_List_Table
 		return $columns;
 	}
 
+	/**
+	 * Get a list of sortable columns.
+     *
+	 * @access public
+	 *
+	 * @return array
+	 */
 	function get_sortable_columns() {
 		$sortable_columns = array(
             'time' => array( 'date', true ),
@@ -56,6 +101,13 @@ class Clgs_Manager_Table extends WP_List_Table
 	    return $sortable_columns;
 	}
 
+	/**
+	 * Get an associative array with the list of bulk actions available on this table.
+	 *
+	 * @access public
+	 *
+	 * @return array
+	 */
 	function get_bulk_actions() {
 		$actions = array(
 			'delete' => __( 'Delete', 'custom-logging-service' ),
@@ -64,6 +116,15 @@ class Clgs_Manager_Table extends WP_List_Table
 		return $actions;
 	}
 
+	/**
+	 * Set configuration data for the table
+	 *
+	 * @access public
+     *
+     * @param array $data list of selection and ordering arguments
+	 *
+	 * @return array
+	 */
     function set_attributes ( $attrs ) {
 		extract( $attrs );
         $this->where = compact( 'seen', 'min_severity', 'category' );
@@ -79,6 +140,15 @@ class Clgs_Manager_Table extends WP_List_Table
         );
     }
 
+	/**
+	 * Prepares the list of items for displaying.
+	 *
+	 * @access public
+	 *
+	 * @global Clgs_DB $clgs_db
+	 *
+	 * @return void
+	 */
 	function prepare_items() {
 	    global $clgs_db;
 
@@ -108,6 +178,15 @@ class Clgs_Manager_Table extends WP_List_Table
     	) );
 	}
 
+	/**
+	 * Extra filter controls to be displayed between bulk actions and pagination
+	 *
+	 * @access public
+	 *
+	 * @param string $which
+	 *
+	 * @return void
+	 */
 	function extra_tablenav ( $which ) {
         global $clgs_db, $severity_list;
 
@@ -151,6 +230,15 @@ class Clgs_Manager_Table extends WP_List_Table
 
 	}
 
+	/**
+	 * Generates content for a single row of the table
+	 *
+	 * @access public
+	 *
+	 * @param object $item The current item
+	 *
+	 * @return void
+	 */
 	function single_row( $item ) {
 		/* Prepare style */
 		static $alt = '';
@@ -174,39 +262,111 @@ class Clgs_Manager_Table extends WP_List_Table
 		$this->_seen_entries[] = $item->id;
 	}
 
+	/**
+	 * Checkbox column
+	 *
+	 * @access public
+	 *
+	 * @param object $item The current item
+	 *
+	 * @return void
+	 */
 	function column_cb($item) {
 			return sprintf(
 			'<input type="checkbox" name="entries[]" value="%s" />', $item->id
 		);
 	}
 
+	/**
+	 * Category column
+	 *
+	 * @access public
+	 *
+	 * @param object $item The current item
+	 *
+	 * @return void
+	 */
 	function column_category( $item ) {
 		return '<span>' . $item->category . '</span>';
 	}
 
+	/**
+	 * Date column
+	 *
+	 * @access public
+	 *
+	 * @param object $item The current item
+	 *
+	 * @return void
+	 */
 	function column_time( $item ) {
 		return '<span data-date="' . $item->date . '"></span>';
 	}
 
+	/**
+	 * Blog column (only multisite)
+	 *
+	 * @access public
+	 *
+	 * @param object $item The current item
+	 *
+	 * @return void
+	 */
 	function column_blog( $item ) {
         $blog_url = get_blogaddress_by_id($item->blog_id);
 		return "<a href=\"$blog_url\" >$item->blog_name</a>";
 	}
 
+	/**
+	 * Username column
+	 *
+	 * @access public
+	 *
+	 * @param object $item The current item
+	 *
+	 * @return void
+	 */
 	function column_user( $item ) {
 		return $item->user_name ? $item->user_name : '-';
 	}
 
+	/**
+	 * Severity column
+	 *
+	 * @access public
+	 *
+	 * @param object $item The current item
+	 *
+	 * @return void
+	 */
 	function column_severity( $item ) {
         global $severity_list;
 
 		return $severity_list[$item->severity];
 	}
 
+	/**
+	 * Log message column
+	 *
+	 * @access public
+	 *
+	 * @param object $item The current item
+	 *
+	 * @return void
+	 */
 	function column_message( $item ) {
 		return $item->text;
 	}
 
+	/**
+	 * Extra bulk action control acting on all rendered items
+	 *
+	 * @access public
+	 *
+	 * @param object $item The current item
+	 *
+	 * @return void
+	 */
 	function print_mark_form() {
 
 ?>

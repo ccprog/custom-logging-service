@@ -28,6 +28,8 @@ Copyright 2011-2013 Zaantar (email: zaantar@zaantar.eu)
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+/*** Bootstrap ***/
+
 define( 'CLGS_VERSION', '1.0.0' );
 
 define( 'CLGS_SETTINGS', 'clgs_settings' );
@@ -43,6 +45,11 @@ define( 'CLGS_WARNING', 3 );
 define( 'CLGS_ERROR', 4 );
 define( 'CLGS_FATALERROR', 5 );
 
+/**
+ * list of severity level names
+ *
+ *  @const array
+ */
 $severity_list = [
     CLGS_NOSEVERITY => 'none',
     CLGS_INFO => 'debug',
@@ -68,9 +75,19 @@ if ( ! function_exists( 'wp_roles' ) ) {
 require_once plugin_dir_path( __FILE__ ).'includes/functions.php';
 
 require_once plugin_dir_path( __FILE__ ).'includes/class-database.php';
+/**
+ * Database interface object
+ *
+ *  @var Clgs_DB
+ */
 $clgs_db = new Clgs_DB();
 
 require_once plugin_dir_path( __FILE__ ).'includes/class-last-log.php';
+/**
+ * entry cache object
+ *
+ *  @var Clgs_DB
+ */
 $clgs_last_log = new Clgs_last_log();
 
 require_once plugin_dir_path( __FILE__ ).'includes/settings.php';
@@ -79,10 +96,15 @@ require_once plugin_dir_path( __FILE__ ).'includes/class-manager-table.php';
 
 $plugin_basename = plugin_basename( __FILE__ );
 
-/*
- * (De)Installation and (De)Activation
- */
+/*** (De)Installation and (De)Activation ***/
 
+/**
+ * tests prerequisites and creates DB tables on activation
+ *
+ * @global Clgs_DB $clgs_db
+ *
+ * @return void
+ */
 function clgs_activation () {
     global $clgs_db;
 
@@ -96,6 +118,11 @@ function clgs_activation () {
 }
 register_activation_hook( __FILE__, 'clgs_activation' );
 
+/**
+ * placeholder routine for update actions
+ *
+ * @return void
+ */
 function clgs_update () {
     $old_version = get_option( 'clgs_version' );
     if ( version_compare( CLGS_VERSION, $old_version , '<' ) ) {
@@ -105,6 +132,14 @@ function clgs_update () {
 }
 add_action( 'plugins_loaded', 'clgs_update' );
 
+/**
+ * deletes management capability and flushes log entry cache on deactivation
+ *
+ * @global Clgs_DB $clgs_db
+ * @global WP_Roles $wp_roles
+ *
+ * @return void
+ */
 function clgs_deactivation () {
     global $clgs_last_log, $wp_roles;
 
@@ -115,6 +150,13 @@ function clgs_deactivation () {
 }
 register_deactivation_hook( __FILE__, 'clgs_deactivation' );
 
+/**
+ * deletes options and DB tables on uninstallation
+ *
+ * @global Clgs_DB $clgs_db
+ *
+ * @return void
+ */
 function clgs_uninstall () {
     global $clgs_db;
     
@@ -126,16 +168,24 @@ function clgs_uninstall () {
 }
 register_uninstall_hook( __FILE__, 'clgs_uninstall' );
 
-/*
- * Loading
- */
+/*** Loading ***/
 
+/**
+ * registers the text domain
+ *
+ * @return void
+ */
 function clgs_load_textdomain () {
 	$plugin_dir = basename( dirname(__FILE__) );
 	load_plugin_textdomain( 'custom-logging-service', false, $plugin_dir.'/languages' );
 }
 add_action( 'plugins_loaded', 'clgs_load_textdomain' );
 
+/**
+ * enqueues script and style files
+ *
+ * @return void
+ */
 function clgs_admin_enqueue_styles() {
 	if( isset( $_REQUEST["page"] ) && CLGS_LOG_PAGE == $_REQUEST["page"] ) {
 		wp_enqueue_style( "clgs-admin-style", plugins_url( "style.css", __FILE__ ) );
@@ -145,6 +195,11 @@ function clgs_admin_enqueue_styles() {
 }
 add_action( "admin_enqueue_scripts", "clgs_admin_enqueue_styles" );
 
+/**
+ * registers the log and settings pages and their menu entries
+ *
+ * @return void
+ */
 function clgs_admin_menu () {
     $option_heading = __( 'Custom Logging Service', 'custom-logging-service' );
     $log_heading = __( 'Application logs', 'custom-logging-service' );
@@ -164,18 +219,35 @@ function clgs_admin_menu () {
 add_action( 'network_admin_menu', 'clgs_admin_menu' );
 add_action( 'admin_menu', 'clgs_admin_menu' );
 
-/*
- * Public API
- */
+/*** Public API ***/
 
 define( 'CLGS', true );
 
+/**
+ * @global Clgs_DB $clgs_db
+ *
+ * @param string $category
+ *
+ * @return boolean true if $category is registered.
+ */
 function clgs_is_registered ( $category ) {
     global $clgs_db;
 
 	return $clgs_db->is_registered( $category );
 }
 
+/**
+ * registers $category as a log category. $description will be shown in the
+ * management page.
+ *
+ * @global Clgs_DB $clgs_db
+ *
+ * @param string $category At most 190 (unicode) characters
+ * @param string $description can contain HTML same as comments (filtered by
+ * wp_kses_data)
+ *
+ * @return boolean false if $category is already registered or it is too long.
+ */
 function clgs_register ( $category, $description ) {
     global $clgs_db;
 
@@ -185,18 +257,55 @@ function clgs_register ( $category, $description ) {
         $clgs_db->register( $category, $description );
 }
 
+/**
+ * deletes all log entries and then removes $category.
+ *
+ * @global Clgs_DB $clgs_db
+ *
+ * @param string $category a registered category name
+ *
+ * @return boolean false if false if action failed.
+ */
 function clgs_unregister ( $category ) {
     global $clgs_db;
 
 	return $clgs_db->bulk_category( 'unregister', $category );
 }
 
+/**
+ * deletes all log entries of $category.
+ *
+ * @global Clgs_DB $clgs_db
+ *
+ * @param string $category a registered category name
+ *
+ * @return mixed number of deleted entries or false if action failed.
+ */
 function clgs_clear ( $category ) {
     global $clgs_db;
 
 	return $clgs_db->bulk_category( 'clear', $category );
 }
 
+/**
+ * writes a new log entry in the specified category.
+ *
+ * @global Clgs_DB $clgs_db
+ * @global Clgs_Last_Log $clgs_last_log
+ *
+ * @param string $category a registered category name
+ * @param string $text the logged message, can contain HTML same as comments
+ * (filtered by wp_kses_data)
+ * @param int $severity one of defined severity levels (see above); if missing
+ * defaults to CLGS_NOCATEGORY
+ * @param mixed $user user id, slug or WP user object are aceptable; if missing
+ * defaults to current user (or a placeholder if none is logged in)
+ * @param int $blog_id blog id; if missing defaults to current blog
+ * @param mixed $date a UNIX timestamp or a string recognized by strtotime();
+ * if missing defaults to current time
+ *
+ * @return boolean false if entering the log failed.
+ */
 function clgs_log ( $category, $text, $severity = null, $user = null, $blog_id = null, $date = null ) {
     global $clgs_db, $clgs_last_log;
 

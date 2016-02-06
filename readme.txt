@@ -74,49 +74,57 @@ CLGS_FATALERROR = 5`
 
 = Functions =
 
-`clgs_is_registered( $category );`
+`clgs_is_registered ( $category )`
 
-returns `true` if `$category` is registered.
+* `string $category`
 
-`clgs_register( $category, $description );`
+*returns* `true` if `$category` is registered.
+
+`clgs_register ( $category, $description )`
 
 registers `$category` as a log category. `$description` will be shown in the
 management page.  
 It is good practice to use unique categories for each plugin that publishes
 log messages.
 
-* `$category string` At most 190 (unicode) characters
-* `$description string` can contain HTML same as comments (filtered by
+* `string $category` At most 190 (unicode) characters
+* `string $description` can contain HTML same as comments (filtered by
   `wp_kses_data`)
 
-returns `false` if the category is already registered or it is too long.
+*returns* `false` if the category is already registered or it is too long.
 
-`clgs_clear( $category );`
+`clgs_clear ( $category )`
 
 deletes all log entries of `$category`.
 
-returns number of deleted entries or `false` if action failed.
+* `string $description` existing category
+
+*returns* number of deleted entries or `false` if action failed.
 
 `clgs_unregister( $category );`
 
 deletes all log entries and then removes `$category`.
 
+* `string $description` existing category
+
+*returns* `false` if false if action failed.
+
 `clgs_log( $category, $text, $severity = null, $user = null, $blog_id = null, $date = null );`
 
 writes a new log entry in the specified category
 
-* `$category string` a registered category name
-* `$text string` the logged message, can contain HTML same as comments (filtered
+* `string $description` a registered category name
+* `string $text` the logged message, can contain HTML same as comments (filtered
   by `wp_kses_data`)
-* `$severity int` one of defined severity levels (see above); if missing defaults to
+* `int $severity` one of defined severity levels (see above); if missing defaults to
   `CLGS_NOCATEGORY`
-* `$user int | string | WP_User` user id, slug or WP user object are aceptable; if missing
+* `int | string | WP_User $user` user id, slug or WP user object are aceptable; if missing
   defaults to current user (or a placeholder if none is logged in)
-* `$blog_id int` blog id; if missing defaults to current blog
-* `$date int | double | string` a UNIX timestamp or a string recognized by `strtotime()`;
+* `int $blog_id` blog id; if missing defaults to current blog
+* `int | double | string $date` a UNIX timestamp or a string recognized by `strtotime()`;
   if missing defaults to current time
 
-returns `false` if entering the log failed.
+*returns* `false` if entering the log failed.
 
 == Screenshots ==
 

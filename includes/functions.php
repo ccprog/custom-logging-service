@@ -1,4 +1,11 @@
 <?php
+/**
+ * detects plugin network install
+ *
+ * @global string $plugin_basename
+ *
+ * @return boolean false if not multisite or single-blog install
+ */
 function clgs_is_network_mode() {
     global $plugin_basename;
 
@@ -9,6 +16,13 @@ function clgs_is_network_mode() {
     return ( is_multisite() && is_plugin_active_for_network( $plugin_basename ) );
 }
 
+/**
+ * retrieves settings option from DB or defaults if they do not exist
+ *
+ * @global array $clgs_settings_defaults
+ *
+ * @return array settings data array
+ */
 function clgs_get_settings() {
 	global $clgs_settings_defaults;
 	
@@ -22,6 +36,31 @@ function clgs_get_settings() {
     return $args;
 }
 
+/**
+ * sanitizes and validates plugin-external arguments
+ *
+ * @global Clgs_DB $clgs_db
+ * @global array $severity_list
+ *
+ * @param array $values arguments to test in the format array(
+ *      'name' => $value
+ * )
+ * @param array $config test rules in the format array(
+ *      'name' => array(
+ *          'sanitize' => string named santitation action or
+ *          'sanitize_function' => function a custom value transformation function,
+ *          'validate' => string named validation rule or
+ *          'validate_array' => array list of valid values,
+ *          'default' => mixed optional default value
+ *     )
+ * )
+ * @param string $action form of return in case of validation errrors:
+ *     'block':   return false on first error
+ *     'hold':    return argument name for first error
+ *     'default': return null as argument value or default if one was supplied
+ *
+ * @return mixed false, name of first erroneous argument or array of sane values
+ */
 function clgs_evaluate( $values, $config, $action = 'default' ) {
     global $clgs_db, $severity_list;
 
@@ -95,6 +134,14 @@ function clgs_evaluate( $values, $config, $action = 'default' ) {
     return $sanitized;
 }
 
+/**
+ * helper santation function: normalize to array
+ *
+ * @param mixed $value input argument
+ * @param mixed $key argument name
+ *
+ * @return mixed array of data or null if uninterpretable or no entries
+ */
 function clgs_to_array ( $value, $key ) {
     if ( 'array' == gettype( $value ) ) {
         $sane = $value;
@@ -118,6 +165,14 @@ function clgs_to_array ( $value, $key ) {
     return $sane;
 }
 
+/**
+ * helper santation function: normalize to user display name
+ *
+ * @param mixed $value input argument
+ * @param mixed $key argument name
+ *
+ * @return mixed user display name or null if uninterpretable
+ */
 function clgs_to_user ( $value, $key ) {
     switch ( gettype( $value ) ) {
     case 'integer':

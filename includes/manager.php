@@ -1,4 +1,11 @@
 <?php
+/**
+ * returns notification bubble for log page menu entry
+ *
+ * @global Clgs_DB $clgs_db
+ *
+ * @return string bubble markup
+ */
 function clgs_unseen_field () {
     global $clgs_db;
 
@@ -19,6 +26,14 @@ function clgs_unseen_field () {
 	}
 }
 
+/**
+ * process log page action and redirect for rendering
+ *
+ * @global string $pagenow
+ * @global Clgs_DB $clgs_db
+ *
+ * @return void
+ */
 function clgs_manager_action() {
     global $pagenow, $clgs_db;
 
@@ -73,14 +88,20 @@ function clgs_manager_action() {
 }
 add_action( 'init', 'clgs_manager_action' );
 
+/**
+ * render log page
+ *
+ * @global string $pagenow
+ * @global Clgs_DB $clgs_db
+ *
+ * @return void
+ */
 function clgs_manager_page() {
     global $pagenow, $clgs_last_log, $clgs_db;
 
 	extract( clgs_get_settings() );
 
-    /*
-     * Input sanitation
-     */
+    /*** Input sanitation ***/
     $attrs = clgs_evaluate( $_REQUEST, array(
         'min_severity' => array(
             'sanitize' => 'int',
@@ -114,9 +135,7 @@ function clgs_manager_page() {
     extract( $attrs );
     //var_dump( $attrs );
 
-    /*
-     * Render
-     */
+    /*** Render ***/
 	$table = new Clgs_Manager_Table();
 
     $pageurl = add_query_arg( 'page', CLGS_LOG_PAGE, $pagenow );

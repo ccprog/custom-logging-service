@@ -1,9 +1,31 @@
 <?php
+/**
+ * DB interface
+ */
 class Clgs_DB
 {
+    /**
+     * SQL log table name
+	 *
+	 * @access private
+	 * @var string
+     */
     private $logs_table_name;
+    /**
+     * SQL entries table name
+	 *
+	 * @access private
+	 * @var string
+     */
     private $entries_table_name;
 
+    /**
+     * Constructor gets stored data from DB
+	 *
+     * @global WPDB $wpdb
+     *
+	 * @access public
+     */
     function __construct () {
 	    global $wpdb;
 
@@ -12,11 +34,30 @@ class Clgs_DB
         $this->entries_table_name = $prefix . 'clgs_entries';
     }
 
+    /**
+     * tests length of a category string
+	 *
+     * @param string $str
+     *
+	 * @access public
+     *
+	 * @return boolean true if no longer than 190 (unicode) characters
+     */
     function category_fits ( $str ) {
         $length = iconv_strlen( $str, 'UTF-8' );
         return $length > 0 && $length <=190;
     }
 
+    /**
+     * creates plugin DB tables
+     *
+	 * @access public
+	 *
+     * @global WPDB $wpdb
+     * @global string $charset_collate
+     *
+	 * @return void
+     */
     function create() {
 	    global $wpdb, $charset_collate;
         require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
@@ -47,6 +88,15 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
         );
     }
 
+    /**
+     * deletes plugin DB tables
+     *
+	 * @access public
+	 *
+     * @global WPDB $wpdb
+     *
+	 * @return void
+     */
     function destroy () {
 	    global $wpdb;
 
@@ -54,6 +104,15 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
         $wpdb->query( "DROP TABLE IF EXISTS $this->entries_table_name" );        
     }
 
+    /**
+     * retrieve all log category entries
+     *
+	 * @access public
+	 *
+     * @global WPDB $wpdb
+     *
+	 * @return array
+     */
     function get_logs( ) {
 	    global $wpdb;
 
@@ -63,6 +122,17 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
 	    return $wpdb->get_results( $query );
     }
 
+    /**
+     * retrieve one log category entry
+     *
+	 * @access public
+	 *
+     * @global WPDB $wpdb
+	 *
+     * @param string $category
+     *
+	 * @return array
+     */
     function get_log( $category ) {
 	    global $wpdb;
 
@@ -72,6 +142,17 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
 	    return $wpdb->get_row( $query );
     }
 
+    /**
+     * test if a log category name exists
+     *
+	 * @access public
+	 *
+     * @global WPDB $wpdb
+	 *
+     * @param string $category
+     *
+	 * @return boolean
+     */
     function is_registered( $category ) {
 	    global $wpdb;
 	    $query = $wpdb->prepare( "SELECT COUNT(*)
@@ -80,12 +161,39 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
 	    return ( $wpdb->get_var( $query ) > 0 );
     }
 
+    /**
+     * insert a log category entry
+     *
+	 * @access public
+	 *
+     * @global WPDB $wpdb
+	 *
+     * @param string $category name
+     * @param string $description freetext
+     *
+	 * @return mixed
+     */
     function register( $category, $description ) {
 	    global $wpdb;
 
 	    return $wpdb->insert( $this->logs_table_name, compact( 'category', 'description' ) );
     }
 
+    /**
+     * delete log entries in bulk
+     *
+	 * @access public
+	 *
+     * @global WPDB $wpdb
+     * @global Clgs_Last_Log $clgs_last_log
+	 *
+     * @param string $which
+     *     'clear' - delete all antries of $category
+     *     'unregister' - additionally delete category entry 
+     * @param string $category name
+     *
+	 * @return mixed
+     */
     function bulk_category( $which, $category ) {
 	    global $wpdb, $clgs_last_log;
 
@@ -98,15 +206,39 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
         return $result;
     }
 
+    /**
+     * insert a log entry
+     *
+	 * @access public
+	 *
+     * @global WPDB $wpdb
+	 *
+     * @param array(mixed) $data in this order:
+     *     category, blog_id, blog_name, date, user_name, text, severity
+     *
+	 * @return mixed
+     */
     function insert_entry( $data ) {
 	    global $wpdb;
 
 	    $result = $wpdb->insert( $this->entries_table_name, $data,
             array( '%s', '%d', '%s', '%d', '%s', '%s', '%d' ) );
-            // category, blog_id, blog_name, date, user_name, text, severity
         return $result ? $wpdb->insert_id : false;
     }
 
+    /**
+     * update a log entry
+     *
+	 * @access public
+	 *
+     * @global WPDB $wpdb
+	 *
+     * @param int $entry_id
+     * @param array $data in this order:
+     *     category, blog_id, blog_name, date, user_name, text, severity, seen
+     *
+	 * @return mixed
+     */
     function update_entry( $entry_id, $data ) {
 	    global $wpdb;
 
@@ -115,6 +247,30 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
             array( '%s', '%d', '%s', '%d', '%s', '%s', '%d', '%d' ), '%d' );
     }
 
+    /**
+     * retrieve log entries
+     *
+	 * @access public
+	 *
+     * @global WPDB $wpdb
+	 *
+     * @param array $where can contain data for
+     *     'blog_id' => int
+     *     'severity' => int
+     *     'id' => int
+     *     'min_severity' => int
+     *     'category' => string
+     *     'seen' => boolean
+     * @param boolean $count return only row count (ignores $limit and $order)
+     * @param array $limit
+     *     'from' => int
+     *     'offset' => int
+     * @param array $order
+     *     'by' => string column name
+     *     'dir' => string 'ASC' or 'DESC'
+     *
+	 * @return mixed
+     */
     function get_entries( $where, $count = false, $limit = null, $order = null ) {
 	    global $wpdb;
 
@@ -188,6 +344,21 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
 	    }
     }
 
+    /**
+     * manipulate log entries in bulk
+     *
+	 * @access public
+	 *
+     * @global WPDB $wpdb
+     * @global Clgs_Last_Log $clgs_last_log
+	 *
+     * @param string $what
+     *     'delete' - delete all listed entries
+     *     'mark-seen' - set seen=true for all listed entries
+     * @param array(int) $entry_ids
+     *
+	 * @return mixed
+     */
     function bulk_entries( $what, $entry_ids ) {
 	    global $wpdb, $clgs_last_log;
 
