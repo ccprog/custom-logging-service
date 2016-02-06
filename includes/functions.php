@@ -24,15 +24,15 @@ function clgs_is_network_mode() {
  * @return array settings data array
  */
 function clgs_get_settings() {
-	global $clgs_settings_defaults;
-	
-	if( clgs_is_network_mode() ) {
-		$settings = get_site_option( CLGS_SETTINGS, array() );
-	} else {
-		$settings = get_option( CLGS_SETTINGS, array() );
-	}
+    global $clgs_settings_defaults;
+    
+    if( clgs_is_network_mode() ) {
+        $settings = get_site_option( CLGS_SETTINGS, array() );
+    } else {
+        $settings = get_option( CLGS_SETTINGS, array() );
+    }
 
-	$args = wp_parse_args( $settings, $clgs_settings_defaults ); // needed?
+    $args = wp_parse_args( $settings, $clgs_settings_defaults ); // needed?
     return $args;
 }
 

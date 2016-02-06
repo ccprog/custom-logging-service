@@ -68,18 +68,18 @@ function clgs_add_settings () {
 function clgs_settings_page () { 
 
 ?>
-	<div class="wrap">
-		<h1><?php _e( 'Custom Logging Service', 'custom-logging-service' ); ?></h1>
+    <div class="wrap">
+        <h1><?php _e( 'Custom Logging Service', 'custom-logging-service' ); ?></h1>
         <form method="post" action="<?php echo clgs_is_network_mode() ? 'edit.php?action=clgs_update' : 'options.php' ?>">
 <?php
 
-		settings_fields( CLGS_SETTINGS );
-		do_settings_sections( CLGS_OPTION_PAGE );
-		submit_button();
+        settings_fields( CLGS_SETTINGS );
+        do_settings_sections( CLGS_OPTION_PAGE );
+        submit_button();
 
 ?>
-		</form>
-	</div>
+        </form>
+    </div>
 <?php
 
 }
@@ -97,21 +97,21 @@ function clgs_settings_init () {
     clgs_add_settings(); // on activation instead?
 
     if ( !clgs_is_network_mode() ) {
-	    register_setting( CLGS_SETTINGS, CLGS_SETTINGS, 'clgs_sanitize' );
+        register_setting( CLGS_SETTINGS, CLGS_SETTINGS, 'clgs_sanitize' );
     }
 
     add_settings_section(CLGS_GROUP, null, null, CLGS_OPTION_PAGE);
 
-	foreach ( $clgs_settings_structure as $key => $rule ) {
+    foreach ( $clgs_settings_structure as $key => $rule ) {
         add_settings_field( 
-		    $key, 
-		    __( $rule['desc'], 'custom-logging-service' ), 
-		    'clgs_field_render', 
-		    CLGS_OPTION_PAGE,
-		    CLGS_GROUP,
-		    [ $key ]
-	    );
-	}
+            $key, 
+            __( $rule['desc'], 'custom-logging-service' ), 
+            'clgs_field_render', 
+            CLGS_OPTION_PAGE,
+            CLGS_GROUP,
+            [ $key ]
+        );
+    }
 }
 add_action( 'admin_init', 'clgs_settings_init' );
 
@@ -149,13 +149,13 @@ function clgs_sanitize ( $input ) {
 function clgs_field_render( $args ) { 
     global $severity_list;
 
-	$id = $args[0];
+    $id = $args[0];
     $options = clgs_get_settings();
 
     if ( 'log_entries_per_page' == $id ) {
 
 ?>
-	<input type="text" name="<?php echo CLGS_SETTINGS . "[$id]"; ?>" value="<?php echo $options[$id]; ?>">
+    <input type="text" name="<?php echo CLGS_SETTINGS . "[$id]"; ?>" value="<?php echo $options[$id]; ?>">
 <?php
 
     } elseif ( 'manager_role' == $id ) {

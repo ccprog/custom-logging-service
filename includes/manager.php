@@ -9,7 +9,7 @@
 function clgs_unseen_field () {
     global $clgs_db;
 
-	$where = array(
+    $where = array(
         'seen' => false,
         'min_severity' => clgs_get_settings()['notification_severity_filter']
     );
@@ -18,12 +18,12 @@ function clgs_unseen_field () {
     }
     $unseen = $clgs_db->get_entries( $where, true );
 
-	if( $unseen > 0 ) {
-		$title = sprintf( __( '%d unseen Log entries', 'custom-logging-service' ), $unseen );
+    if( $unseen > 0 ) {
+        $title = sprintf( __( '%d unseen Log entries', 'custom-logging-service' ), $unseen );
         return " <span class=\"awaiting-mod count-$unseen\" title=\"$title\"><span>$unseen</span></span>";
-	} else {
-		return '';
-	}
+    } else {
+        return '';
+    }
 }
 
 /**
@@ -37,7 +37,7 @@ function clgs_unseen_field () {
 function clgs_manager_action() {
     global $pagenow, $clgs_db;
 
-	if ( !isset( $_REQUEST["page"] ) || CLGS_LOG_PAGE != $_REQUEST["page"] ) {
+    if ( !isset( $_REQUEST["page"] ) || CLGS_LOG_PAGE != $_REQUEST["page"] ) {
         return;
     }
 
@@ -99,7 +99,7 @@ add_action( 'init', 'clgs_manager_action' );
 function clgs_manager_page() {
     global $pagenow, $clgs_db;
 
-	extract( clgs_get_settings() );
+    extract( clgs_get_settings() );
 
     /*** Input sanitation ***/
     $attrs = clgs_evaluate( $_REQUEST, array(
@@ -136,98 +136,98 @@ function clgs_manager_page() {
     //var_dump( $attrs );
 
     /*** Render ***/
-	$table = new Clgs_Manager_Table();
+    $table = new Clgs_Manager_Table();
 
     $pageurl = add_query_arg( 'page', CLGS_LOG_PAGE, $pagenow );
     $pageurl = add_query_arg( compact( 'seen', 'min_severity' ), $pageurl );
 
-	// Show a single entry or a list?
-	if( isset( $entry_id ) ) {
-		unset( $attrs['category'] );
-	}
+    // Show a single entry or a list?
+    if( isset( $entry_id ) ) {
+        unset( $attrs['category'] );
+    }
 
 ?>
-	<div class="wrap">
-		<h1><?php _e( 'Application logs', 'custom-logging-service' ); ?></h1>
+    <div class="wrap">
+        <h1><?php _e( 'Application logs', 'custom-logging-service' ); ?></h1>
 <?php
 
-	if ( isset( $attrs['category'] ) ) { // single log category
-	    $log = $clgs_db->get_log( $attrs['category'] );
+    if ( isset( $attrs['category'] ) ) { // single log category
+        $log = $clgs_db->get_log( $attrs['category'] );
         $actionurl = wp_nonce_url( add_query_arg( 'category',  urlencode( $attrs['category'] ), $pageurl ), 'bulk-category' );
 
 ?>
-		<h2><?php echo __( 'Log category', 'custom-logging-service' ) . ': ' . $log->category; ?></h2>
-		<p><?php echo $log->description; ?></p>
+        <h2><?php echo __( 'Log category', 'custom-logging-service' ) . ': ' . $log->category; ?></h2>
+        <p><?php echo $log->description; ?></p>
         <p>
             <a href="<?php echo $actionurl . '&action=clear'; ?>" title="<?php
-		        _e( "Remove all log entries from this category", 'custom-logging-service' ); ?>"><?php
-		        _e( 'Clear', 'custom-logging-service' ); ?></a> |
-		    <a href="<?php echo $actionurl . '&action=unregister'; ?>" title="<?php
-		        _e( "Delete this log category permanently (with all entries)", 'custom-logging-service' ); ?>" ><?php
-		        _e( 'Delete', 'custom-logging-service' ); ?></a> |
+                _e( "Remove all log entries from this category", 'custom-logging-service' ); ?>"><?php
+                _e( 'Clear', 'custom-logging-service' ); ?></a> |
+            <a href="<?php echo $actionurl . '&action=unregister'; ?>" title="<?php
+                _e( "Delete this log category permanently (with all entries)", 'custom-logging-service' ); ?>" ><?php
+                _e( 'Delete', 'custom-logging-service' ); ?></a> |
             <a href="<?php echo $pageurl; ?>"><?php
                 _e( 'Show all categories', 'custom-logging-service' ); ?></a>
         </p>
-		<form method="get">
-			<input type="hidden" name="page" value="<?php echo CLGS_LOG_PAGE; ?>" />
-			<input type="hidden" name="action" value="view" />
-			<input type="hidden" name="category" value="<?php echo $log->category; ?>" />
+        <form method="get">
+            <input type="hidden" name="page" value="<?php echo CLGS_LOG_PAGE; ?>" />
+            <input type="hidden" name="action" value="view" />
+            <input type="hidden" name="category" value="<?php echo $log->category; ?>" />
 <?php
 
-	} else {
+    } else {
 
 ?>
-		<h2><?php _e( "New log entries from all categories", 'custom-logging-service' ); ?></h2>
-		<form method="get">
-			<input type="hidden" name="page" value="<?php echo CLGS_LOG_PAGE; ?>" />
-			<input type="hidden" name="action" value="view" />
+        <h2><?php _e( "New log entries from all categories", 'custom-logging-service' ); ?></h2>
+        <form method="get">
+            <input type="hidden" name="page" value="<?php echo CLGS_LOG_PAGE; ?>" />
+            <input type="hidden" name="action" value="view" />
 <?php
 
     }
 
-	$table->set_attributes( $attrs );
-	$table->prepare_items();
-	$table->display();
+    $table->set_attributes( $attrs );
+    $table->prepare_items();
+    $table->display();
 
 ?>
-		</form>
+        </form>
 <?php
 
     $table->print_mark_form();
 
-	if ( !isset( $attrs['category'] ) ) { // include a log category overview
+    if ( !isset( $attrs['category'] ) ) { // include a log category overview
 
 ?>
-		<h2><?php _e( 'Log categories', 'custom-logging-service' ); ?></h2>
-		<dl id="clgs-log-list">
+        <h2><?php _e( 'Log categories', 'custom-logging-service' ); ?></h2>
+        <dl id="clgs-log-list">
 <?php
 
-	    foreach( $clgs_db->get_logs() as $log ) {
+        foreach( $clgs_db->get_logs() as $log ) {
             $caturl = add_query_arg( 'category', urlencode( $log->category ), $pageurl );
             $actionurl = wp_nonce_url( $caturl, 'bulk-category' );
 
 ?>
-		    <dt><a href="<?php echo $caturl; ?>"><?php echo $log->category; ?></a></dt>
-		    <dd><?php echo esc_attr( $log->description ) ?><br/>
-		    <a href="<?php echo $actionurl . '&action=clear'; ?>" title="<?php
-		        _e( "Remove all log entries from this category", 'custom-logging-service' ); ?>"><?php
-		        _e( 'Clear', 'custom-logging-service' ); ?></a> |
-		    <a href="<?php echo $actionurl . '&action=unregister'; ?>" title="<?php
-		        _e( "Delete this log category permanently (with all entries)", 'custom-logging-service' ); ?>" ><?php
-		        _e( 'Delete', 'custom-logging-service' ); ?></a>
-		    </dd>
+            <dt><a href="<?php echo $caturl; ?>"><?php echo $log->category; ?></a></dt>
+            <dd><?php echo esc_attr( $log->description ) ?><br/>
+            <a href="<?php echo $actionurl . '&action=clear'; ?>" title="<?php
+                _e( "Remove all log entries from this category", 'custom-logging-service' ); ?>"><?php
+                _e( 'Clear', 'custom-logging-service' ); ?></a> |
+            <a href="<?php echo $actionurl . '&action=unregister'; ?>" title="<?php
+                _e( "Delete this log category permanently (with all entries)", 'custom-logging-service' ); ?>" ><?php
+                _e( 'Delete', 'custom-logging-service' ); ?></a>
+            </dd>
 <?php
 
-	    }
+        }
 
 ?>
-		</dl>
+        </dl>
 <?php
 
-	}
+    }
 
 ?>
-	</div>
+    </div>
 <?php
 
 }
