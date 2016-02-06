@@ -55,6 +55,11 @@ interact with it through the API; see the API section for details.
 
 Find them under Dashboard -> Selected Logs.
 
+= I can't find the option to add roles for log management! =
+
+If the plugin has been installed network-wide in Multisite, only the Super Admin
+has access to the logs. Sorry, I don't understand role management in Multisite.
+
 == API ==
 
 = Constants =

@@ -47,16 +47,17 @@ $clgs_settings_defaults = array(
  * @return void
  */
 function clgs_add_settings () {
-    global $clgs_settings_defaults;
+    global $clgs_settings_defaults, $clgs_settings_structure;
 
     if ( clgs_is_network_mode() ) {
-        $clgs_settings_defaults['manager_role'] = ['super-admin'];
+        unset( $clgs_settings_defaults['manager_role'] );
+        unset( $clgs_settings_structure['manager_role'] );
+    } else {
+        foreach ( clgs_get_settings()['manager_role'] as $key => $name ) {
+            wp_roles()->add_cap( $name, CLGS_CAP );
+        }
     }
     add_site_option( CLGS_SETTINGS, $clgs_settings_defaults );
-
-    foreach ( clgs_get_settings()['manager_role'] as $name ) {
-        get_role( $name )->add_cap( CLGS_CAP );
-    }
 }
 
 /**
@@ -159,10 +160,6 @@ function clgs_field_render( $args ) {
 
     } elseif ( 'manager_role' == $id ) {
         $name_attr = CLGS_SETTINGS . "[$id][]";
-        if ( clgs_is_network_mode() ) {
-            echo "<label><input type=\"checkbox\" name=\"$name_attr\" value=\"super-admin\" disabled checked/>";
-            echo "Super Admin</label><br/>";
-        }
         foreach ( wp_roles()->get_names() as $key => $name ) {
             $checked = in_array( $key, $options[$id] ) ? 'checked ' : '';
             echo "<label><input type=\"checkbox\" name=\"$name_attr\" value=\"$key\" $checked/>";
