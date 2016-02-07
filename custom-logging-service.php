@@ -103,9 +103,11 @@ $plugin_basename = plugin_basename( __FILE__ );
  *
  * @global Clgs_DB $clgs_db
  *
+ * @param bool $network_wide indicates network install
+ *
  * @return void
  */
-function clgs_activation () {
+function clgs_activation ( $network_wide = null ) {
     global $clgs_db;
 
     if ( version_compare( PHP_VERSION, '5.3', '<' ) ) {
@@ -114,6 +116,7 @@ function clgs_activation () {
     }
 
     $clgs_db->create();
+    clgs_add_settings( $network_wide );
     update_option( 'clgs_version', CLGS_VERSION );
 }
 register_activation_hook( __FILE__, 'clgs_activation' );

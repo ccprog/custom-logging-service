@@ -28,36 +28,43 @@ $clgs_settings_structure = array(
 );
 
 /**
- * default settings values
+ * returns default settings
  *
- * @var array
+ * @global array $clgs_settings_structure
+ *
+ * @return array
  */
-$clgs_settings_defaults = array(
-    'notification_severity_filter' => 0,
-    'def_severity_filter' => 2,
-    'manager_role' => ['administrator'],
-    'log_entries_per_page' => 100
-);
+function clgs_settings_defaults () {
+     return array(
+        'notification_severity_filter' => 0,
+        'def_severity_filter' => 2,
+        'manager_role' => ['administrator'],
+        'log_entries_per_page' => 100
+    );
+}
 
 /**
  * writes default settings to DB option
  *
- * @global array $clgs_settings_defaults
+ * @global array $clgs_settings_structure
+ *
+ * @param bool $network_wide indicates network install
  *
  * @return void
  */
-function clgs_add_settings () {
-    global $clgs_settings_defaults, $clgs_settings_structure;
+function clgs_add_settings ( $network_wide ) {
+    global $clgs_settings_structure;
 
-    if ( clgs_is_network_mode() ) {
-        unset( $clgs_settings_defaults['manager_role'] );
+    $settings_defaults = clgs_settings_defaults();
+    if ( $network_wide ) {
+        unset( $settings_defaults['manager_role'] );
         unset( $clgs_settings_structure['manager_role'] );
     } else {
         foreach ( clgs_get_settings()['manager_role'] as $key => $name ) {
             wp_roles()->add_cap( $name, CLGS_CAP );
         }
     }
-    add_site_option( CLGS_SETTINGS, $clgs_settings_defaults );
+    add_site_option( CLGS_SETTINGS, $settings_defaults );
 }
 
 /**
@@ -101,9 +108,9 @@ function clgs_settings_page () {
 function clgs_settings_init () { 
     global $clgs_settings_structure;
 
-    clgs_add_settings(); // on activation instead?
-
-    if ( !clgs_is_network_mode() ) {
+    if ( clgs_is_network_mode() ) {
+        unset( $clgs_settings_structure['manager_role'] );
+    } else {
         register_setting( CLGS_SETTINGS, CLGS_SETTINGS, 'clgs_sanitize' );
     }
 

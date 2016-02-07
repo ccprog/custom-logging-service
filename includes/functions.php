@@ -19,20 +19,19 @@ function clgs_is_network_mode() {
 /**
  * retrieves settings option from DB or defaults if they do not exist
  *
- * @global array $clgs_settings_defaults
- *
  * @return array settings data array
  */
 function clgs_get_settings() {
-    global $clgs_settings_defaults;
+    $settings_defaults = clgs_settings_defaults();
     
     if( clgs_is_network_mode() ) {
+        unset( $settings_defaults['manager_role'] );
         $settings = get_site_option( CLGS_SETTINGS, array() );
     } else {
         $settings = get_option( CLGS_SETTINGS, array() );
     }
 
-    $args = wp_parse_args( $settings, $clgs_settings_defaults ); // needed?
+    $args = wp_parse_args( $settings, $settings_defaults ); // needed?
     return $args;
 }
 
