@@ -75,7 +75,7 @@ function clgs_manager_action() {
             if ( in_array( $action, [ 'delete', 'mark-seen' ] ) && isset( $entries ) ) {
                 check_admin_referer( 'bulk-entries' );
                 $clgs_db->bulk_entries( $action, $entries );
-            } elseif ( in_array( $action, [ 'clear', 'unregister' ] ) && isset( $category ) ) {
+            } elseif ( in_array( $action, [ 'clear', 'unregister', 'mark-category' ] ) && isset( $category ) ) {
                 check_admin_referer( 'bulk-category' );
                 $clgs_db->bulk_category( $action, $category );
                 unset( $args['category'] );
@@ -159,6 +159,9 @@ function clgs_manager_page() {
         <h2><?php echo __( 'Log category', 'custom-logging-service' ) . ': ' . $log->category; ?></h2>
         <p><?php echo $log->description; ?></p>
         <p>
+            <a href="<?php echo $actionurl . '&action=mark-category'; ?>" title="<?php
+                _e( "Mark whole category as read", 'custom-logging-service' ); ?>" ><?php
+                _e( 'Mark whole category as read', 'custom-logging-service' ); ?></a> |
             <a href="<?php echo $actionurl . '&action=clear'; ?>" title="<?php
                 _e( "Remove all log entries from this category", 'custom-logging-service' ); ?>"><?php
                 _e( 'Clear', 'custom-logging-service' ); ?></a> |
@@ -193,8 +196,6 @@ function clgs_manager_page() {
         </form>
 <?php
 
-    $table->print_mark_form();
-
     if ( !isset( $attrs['category'] ) ) { // include a log category overview
 
 ?>
@@ -209,8 +210,11 @@ function clgs_manager_page() {
 ?>
             <tr class="<?php echo $id % 2 === 0 ? 'alternate' : ''; ?>">
             <td class="column-primary">
-                <a href="<?php echo $caturl; ?>"><?php echo $log->category; ?></a>
+                <span><a href="<?php echo $caturl; ?>"><?php echo $log->category; ?></a></span>
                 <div class="row-actions visible">
+                <a href="<?php echo $actionurl . '&action=mark-category'; ?>" title="<?php
+                    _e( "Mark whole category as read", 'custom-logging-service' ); ?>" ><?php
+                    _e( 'Mark as read', 'custom-logging-service' ); ?></a> |
                 <a href="<?php echo $actionurl . '&action=clear'; ?>" title="<?php
                     _e( "Remove all log entries from this category", 'custom-logging-service' ); ?>"><?php
                     _e( 'Clear', 'custom-logging-service' ); ?></a> |

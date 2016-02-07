@@ -199,7 +199,15 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
 
         $clgs_last_log->flush();
         $where = compact ( 'category' );
-        $result = $wpdb->delete( $this->entries_table_name, $where );
+        switch ( $which ) {
+        case 'mark-category':
+            $data = array( 'seen' => true );
+            $result = $wpdb->update( $this->entries_table_name, $data, $where, '%d' );
+            break;
+        default:
+            $result = $wpdb->delete( $this->entries_table_name, $where );
+            break;
+        }
         if ( ( false !== $result ) && 'unregister' == $which ) {
             $result = $wpdb->delete( $this->logs_table_name, $where );
         }

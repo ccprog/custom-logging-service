@@ -357,41 +357,5 @@ class Clgs_Manager_Table extends WP_List_Table
     function column_message( $item ) {
         return $item->text;
     }
-
-    /**
-     * Extra bulk action control acting on all rendered items
-     *
-     * @access public
-     *
-     * @param object $item The current item
-     *
-     * @return void
-     */
-    function print_mark_form() {
-
-?>
-        <form method="GET">
-            <input type="hidden" name="action" value="mark-seen" />
-            <input type="hidden" name="entries" value="<?php echo implode( ',', $this->_seen_entries ); ?>" />
-            <input type="hidden" name="page" value="<?php echo CLGS_LOG_PAGE ?>" />
-            
-<?php
-
-            foreach( [ 'seen', 'min_severity' ] as $name ) {
-                if ( isset( $this->where[$name] ) ) {
-                    $value = $this->where[$name];
-                    echo "<input type=\"hidden\" name=\"$name\" value=\"$value\" />";
-                }
-            }
-            wp_nonce_field( 'bulk-' . $this->_args['plural'], '_wpnonce', false );
-
-?>
-            <p class="submit">
-                <input type="submit" class="button-primary" value="<?php _e( 'Mark all as read', 'custom-logging-service' ); ?>" />
-            </p>
-        </form>
-<?php
-
-    }
 }
 

@@ -40,7 +40,10 @@ input.clgs-seen, .tablenav .actions select.clgs-severity {
     overflow-y: auto;
 }
 #clgs-log-list td.column-primary {
-    width: 20em;
+    width: 24em;
+}
+#clgs-log-list td.column-primary > span:first-child {
+    font-weight: bold;
 }
 @media screen and (max-width: 782px) {
     #clgs-log-list {

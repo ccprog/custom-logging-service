@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: custom-logging-service 1.0.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-05 21:18+0100\n"
-"PO-Revision-Date: 2016-02-05 21:18+0100\n"
+"POT-Creation-Date: 2016-02-07 15:46+0100\n"
+"PO-Revision-Date: 2016-02-07 15:46+0100\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -17,117 +17,117 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: custom-logging-service.php:149 includes/settings.php:49
+#: custom-logging-service.php:204 includes/settings.php:72
 msgid "Custom Logging Service"
 msgstr "Custom Logging Service"
 
-#: custom-logging-service.php:150 includes/manager.php:132
+#: custom-logging-service.php:205 includes/manager.php:151
 msgid "Application logs"
 msgstr "Anwendungs-Logs"
 
-#: custom-logging-service.php:261
+#: custom-logging-service.php:370
 msgid "since "
 msgstr "seit "
 
-#: includes/class-manager-table.php:33 includes/manager.php:140
+#: includes/class-manager-table.php:71 includes/manager.php:159
 msgid "Log category"
 msgstr "Log-Kategorie"
 
-#: includes/class-manager-table.php:34
+#: includes/class-manager-table.php:72
 msgid "Time"
 msgstr "Zeit"
 
-#: includes/class-manager-table.php:35
+#: includes/class-manager-table.php:73
 msgid "User"
 msgstr "Benutzer"
 
-#: includes/class-manager-table.php:39
+#: includes/class-manager-table.php:77
 msgid "Blog"
 msgstr "Blog"
 
-#: includes/class-manager-table.php:41
+#: includes/class-manager-table.php:79
 msgid "Severity"
 msgstr "Schweregrad"
 
-#: includes/class-manager-table.php:42
+#: includes/class-manager-table.php:80
 msgid "Message"
 msgstr "Nachricht"
 
-#: includes/class-manager-table.php:61 includes/manager.php:148
-#: includes/manager.php:198
+#: includes/class-manager-table.php:113 includes/manager.php:170
+#: includes/manager.php:223
 msgid "Delete"
 msgstr "Löschen"
 
-#: includes/class-manager-table.php:62
+#: includes/class-manager-table.php:114 includes/manager.php:217
 msgid "Mark as read"
 msgstr "Als gelesen markieren"
 
-#: includes/class-manager-table.php:122
+#: includes/class-manager-table.php:201
 msgid "Show old entries:"
 msgstr "Zeige alte Einträge:"
 
-#: includes/class-manager-table.php:124
+#: includes/class-manager-table.php:203
 msgid "Minimum Severity:"
 msgstr "Kleinster Schweregrad:"
 
-#: includes/class-manager-table.php:148
+#: includes/class-manager-table.php:227
 msgid "Filter"
 msgstr "Filtern"
 
-#: includes/class-manager-table.php:163
+#: includes/class-manager-table.php:251
 msgid "New entry"
 msgstr "Neuer Eintrag"
 
-#: includes/class-manager-table.php:230
-msgid "Mark all as read"
-msgstr "Alle als gelesen markieren"
-
-#: includes/manager.php:15
+#: includes/manager.php:22
 #, php-format
 msgid "%d unseen Log entries"
 msgstr "%d ungesehene Log-Einträge"
 
-#: includes/manager.php:144 includes/manager.php:194
+#: includes/manager.php:163 includes/manager.php:164 includes/manager.php:216
+msgid "Mark whole category as read"
+msgstr "Gesamte Kategorie als gelesen markieren"
+
+#: includes/manager.php:166 includes/manager.php:219
 msgid "Remove all log entries from this category"
 msgstr "Alle Log-Einträge aus dieser Kategorie entfernen"
 
-#: includes/manager.php:145 includes/manager.php:195
+#: includes/manager.php:167 includes/manager.php:220
 msgid "Clear"
 msgstr "Leeren"
 
-#: includes/manager.php:147 includes/manager.php:197
+#: includes/manager.php:169 includes/manager.php:222
 msgid "Delete this log category permanently (with all entries)"
 msgstr "Diese Log-Kategorie (mit allen Einträgen) dauerhaft löschen"
 
-#: includes/manager.php:150
+#: includes/manager.php:172
 msgid "Show all categories"
 msgstr "Zeige alle Kategorien"
 
-#: includes/manager.php:161
+#: includes/manager.php:183
 msgid "New log entries from all categories"
 msgstr "Neue Log-Einträge aus allen Kategorien"
 
-#: includes/manager.php:182
+#: includes/manager.php:202
 msgid "Log categories"
 msgstr "Log-Kategorien"
 
-#: includes/settings.php:6
+#: includes/settings.php:11
 msgid "Minimum severity for notification in administration menu"
 msgstr "Mindestschweregrad für Benachrichtigungen im Administrationsmenü"
 
-#: includes/settings.php:11
+#: includes/settings.php:16
 msgid "Default minimum severity filter on the log page"
 msgstr "Standard-Mindestschweregrad auf der Log-Seite"
 
-#: includes/settings.php:16
+#: includes/settings.php:21
 msgid "Roles that can use the logs page"
 msgstr "Rollen, die die Log-Seite nutzen können"
 
-#: includes/settings.php:21
+#: includes/settings.php:26
 msgid "Log entries per page"
 msgstr "Log-Einträge pro Seite"
 
-#: includes/settings.php:95
+#: includes/settings.php:132
 #, php-format
 msgid "The setting %s was invalid, nothing saved."
 msgstr "Die Einstellung %s war ungültig, nichts gespeichert."
