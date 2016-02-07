@@ -70,6 +70,13 @@ function clgs_settings_page () {
 ?>
     <div class="wrap">
         <h1><?php _e( 'Custom Logging Service', 'custom-logging-service' ); ?></h1>
+<?php
+
+        if ( clgs_is_network_mode() ) {
+            settings_errors( CLGS_SETTINGS );
+        }
+
+?>
         <form method="post" action="<?php echo clgs_is_network_mode() ? 'edit.php?action=clgs_update' : 'options.php' ?>">
 <?php
 
@@ -219,8 +226,15 @@ function clgs_save_network_settings () {
     $settings = clgs_sanitize( $_POST[ CLGS_SETTINGS ] );
     update_site_option( CLGS_SETTINGS, $settings );
 
+	if ( !count( get_settings_errors() ) )
+		add_settings_error( CLGS_SETTINGS, 'settings_updated', __('Settings saved.'), 'updated');
+	set_transient('settings_errors', get_settings_errors(), 30);
     add_filter('wp_redirect', function ($url) {
-        return admin_url( 'network/settings.php?page=' . CLGS_OPTION_PAGE );
+        $url = add_query_arg( array(
+            'page' => CLGS_OPTION_PAGE,
+            'settings-updated' => 'true'
+        ),  admin_url( 'network/settings.php' ) );
+        return $url;
     });
 }
 add_action('network_admin_edit_clgs_update', 'clgs_save_network_settings');
