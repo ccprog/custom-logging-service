@@ -199,29 +199,35 @@ function clgs_manager_page() {
 
 ?>
         <h2><?php _e( 'Log categories', 'custom-logging-service' ); ?></h2>
-        <dl id="clgs-log-list">
+        <div id="clgs-log-list"><table class="wp-list-table widefat fixed striped">
 <?php
 
-        foreach( $clgs_db->get_logs() as $log ) {
+        foreach( $clgs_db->get_logs() as $id => $log ) {
             $caturl = add_query_arg( 'category', urlencode( $log->category ), $pageurl );
             $actionurl = wp_nonce_url( $caturl, 'bulk-category' );
 
 ?>
-            <dt><a href="<?php echo $caturl; ?>"><?php echo $log->category; ?></a></dt>
-            <dd><?php echo esc_attr( $log->description ) ?><br/>
-            <a href="<?php echo $actionurl . '&action=clear'; ?>" title="<?php
-                _e( "Remove all log entries from this category", 'custom-logging-service' ); ?>"><?php
-                _e( 'Clear', 'custom-logging-service' ); ?></a> |
-            <a href="<?php echo $actionurl . '&action=unregister'; ?>" title="<?php
-                _e( "Delete this log category permanently (with all entries)", 'custom-logging-service' ); ?>" ><?php
-                _e( 'Delete', 'custom-logging-service' ); ?></a>
-            </dd>
+            <tr class="<?php echo $id % 2 === 0 ? 'alternate' : ''; ?>">
+            <td class="column-primary">
+                <a href="<?php echo $caturl; ?>"><?php echo $log->category; ?></a>
+                <div class="row-actions visible">
+                <a href="<?php echo $actionurl . '&action=clear'; ?>" title="<?php
+                    _e( "Remove all log entries from this category", 'custom-logging-service' ); ?>"><?php
+                    _e( 'Clear', 'custom-logging-service' ); ?></a> |
+                <a href="<?php echo $actionurl . '&action=unregister'; ?>" title="<?php
+                    _e( "Delete this log category permanently (with all entries)", 'custom-logging-service' ); ?>" ><?php
+                    _e( 'Delete', 'custom-logging-service' ); ?></a>
+                </div>
+                <button class="toggle-row" type="button"><span class="screen-reader-text"><?php
+                    _e( 'Show more details' ); ?></span></button>
+            </td>
+            <td><?php echo esc_attr( $log->description ) ?></td>
 <?php
 
         }
 
 ?>
-        </dl>
+        </table></div>
 <?php
 
     }

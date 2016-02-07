@@ -1,14 +1,3 @@
-#clgs-log-list dt {
-    float: left;
-    font-weight: bold;
-}
-#clgs-log-list dt:after {
-    content: " – ";
-}
-#clgs-log-list dd {
-    display: block;
-    margin-inline-start: 10px;
-}
 .wp-list-table .column-category { width: 9em; }
 .wp-list-table .column-time { width: 6em; }
 .wp-list-table .column-blog { width: 9em; }
@@ -45,4 +34,16 @@ input.clgs-seen, .tablenav .actions select.clgs-severity {
     color: white !important;
     background-color: #f44;
     font-weight: bold;
+}
+#clgs-log-list {
+    max-height: 343px;
+    overflow-y: auto;
+}
+#clgs-log-list td.column-primary {
+    width: 20em;
+}
+@media screen and (max-width: 782px) {
+    #clgs-log-list {
+        max-height: none;
+    }
 }
