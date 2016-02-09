@@ -61,7 +61,7 @@ function clgs_get_settings() {
  * @return mixed false, name of first erroneous argument or array of sane values
  */
 function clgs_evaluate( $values, $config, $action = 'default' ) {
-    global $clgs_db, $severity_list;
+    global $clgs_db, $severity_list, $allowedtags;
 
     $sanitized = array();
     foreach ( $config as $key => $rule ) {
@@ -74,7 +74,9 @@ function clgs_evaluate( $values, $config, $action = 'default' ) {
             $sane = esc_attr( $values[$key] );
             break;
         case 'kses_string':
-            $sane = wp_kses_data( (string)$values[$key] );
+			$tags = $allowedtags;
+			$tags['br'] = array();
+            $sane = wp_kses( (string)$values[$key], $tags );
             break;
         case 'toupper_string':
             $sane = strtoupper( esc_attr( $values[$key] ) );
