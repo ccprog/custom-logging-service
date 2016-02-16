@@ -7,7 +7,7 @@ Stable tag: trunk
 License: GPL2
 
 Provides a simple API for storing miscellaneous log entries and displays them in a
-Dashboard subpage.
+Dashboard subpage. 
 
 == Description ==
 

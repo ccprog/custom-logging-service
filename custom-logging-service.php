@@ -6,7 +6,6 @@ Version: 1.0.0
 Author: Claus Colloseus
 Author URI: http://browser-unplugged.net
 Text Domain: custom-logging-service
-Domain Path: /languages
 Description: Provides a simple API for storing miscellaneous log entries and displays them in a Dashboard subpage.
 License: GPL2
 
