@@ -2,7 +2,7 @@
 /*
 Plugin Name: Custom Logging Service
 Plugin URI: https://github.com/ccprog/custom-logging-service
-Version: 1.0.0
+Version: 1.0.1
 Author: Claus Colloseus
 Author URI: http://browser-unplugged.net
 Text Domain: custom-logging-service

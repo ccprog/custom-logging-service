@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Wordpress Logging Service\n"
+"Project-Id-Version: custom-logging-service 1.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-07 15:46+0100\n"
-"PO-Revision-Date: 2016-02-07 15:46+0100\n"
+"POT-Creation-Date: 2016-04-14 14:57+0200\n"
+"PO-Revision-Date: 2016-04-14 14:57+0200\n"
 "Last-Translator: Zaantar <zaantar@zaantar.eu>\n"
 "Language-Team: \n"
 "Language: \n"
@@ -14,15 +14,15 @@ msgstr ""
 "X-Poedit-Basepath: .\n"
 "X-Poedit-SearchPath-0: .\n"
 
-#: custom-logging-service.php:204 includes/settings.php:72
+#: custom-logging-service.php:206 includes/settings.php:79
 msgid "Custom Logging Service"
 msgstr "Custom Logging Service"
 
-#: custom-logging-service.php:205 includes/manager.php:151
+#: custom-logging-service.php:207 includes/manager.php:151
 msgid "Application logs"
 msgstr ""
 
-#: custom-logging-service.php:370
+#: custom-logging-service.php:372
 msgid "since "
 msgstr ""
 
@@ -125,7 +125,7 @@ msgstr ""
 msgid "Log entries per page"
 msgstr ""
 
-#: includes/settings.php:132
+#: includes/settings.php:146
 #, php-format
 msgid "The setting %s was invalid, nothing saved."
 msgstr ""

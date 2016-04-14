@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: custom-logging-service 1.0.0\n"
+"Project-Id-Version: custom-logging-service 1.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-02-07 15:46+0100\n"
-"PO-Revision-Date: 2016-02-07 15:46+0100\n"
+"POT-Creation-Date: 2016-04-14 14:57+0200\n"
+"PO-Revision-Date: 2016-04-14 14:57+0200\n"
 "Last-Translator: Claus Colloseus <ccprog@gmx.de>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -17,15 +17,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: custom-logging-service.php:204 includes/settings.php:72
+#: custom-logging-service.php:206 includes/settings.php:79
 msgid "Custom Logging Service"
 msgstr "Custom Logging Service"
 
-#: custom-logging-service.php:205 includes/manager.php:151
+#: custom-logging-service.php:207 includes/manager.php:151
 msgid "Application logs"
 msgstr "Anwendungs-Logs"
 
-#: custom-logging-service.php:370
+#: custom-logging-service.php:372
 msgid "since "
 msgstr "seit "
 
@@ -127,7 +127,7 @@ msgstr "Rollen, die die Log-Seite nutzen können"
 msgid "Log entries per page"
 msgstr "Log-Einträge pro Seite"
 
-#: includes/settings.php:132
+#: includes/settings.php:146
 #, php-format
 msgid "The setting %s was invalid, nothing saved."
 msgstr "Die Einstellung %s war ungültig, nichts gespeichert."
