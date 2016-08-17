@@ -2,7 +2,7 @@
 Contributors: ccprog
 Tags: logging
 Requires at least: 4.0
-Tested up to: 4.5
+Tested up to: 4.6
 Stable tag: trunk
 License: GPL2
 
@@ -137,6 +137,10 @@ writes a new log entry in the specified category
 2. Log page
 
 == Changelog ==
+
+= 1.0.2 =
+
+Compatibility with WP 4.6
 
 = 1.0.1 =
 
