@@ -2,9 +2,9 @@
 /*
 Plugin Name: Custom Logging Service
 Plugin URI: https://github.com/ccprog/custom-logging-service
-Version: 1.0.2
+Version: 1.0.3
 Author: Claus Colloseus
-Author URI: http://browser-unplugged.net
+Author URI: https://browser-unplugged.net
 Text Domain: custom-logging-service
 Description: Provides a simple API for storing miscellaneous log entries and displays them in a Dashboard subpage.
 License: GPL2
@@ -29,7 +29,7 @@ Copyright 2011-2013 Zaantar (email: zaantar@zaantar.eu)
 
 /*** Bootstrap ***/
 
-define( 'CLGS_VERSION', '1.0.0' );
+define( 'CLGS_VERSION', '1.0.3' );
 
 define( 'CLGS_SETTINGS', 'clgs_settings' );
 define( 'CLGS_LOG_PAGE', 'clgs_manager' );

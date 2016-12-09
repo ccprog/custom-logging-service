@@ -1,6 +1,6 @@
 {
   "name": "custom-logging-service",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "devDependencies": {
     "grunt": "~0.4.4",
     "grunt-pot": "~0.1.2",
