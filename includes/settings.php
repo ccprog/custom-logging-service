@@ -35,12 +35,16 @@ $clgs_settings_structure = array(
  * @return array
  */
 function clgs_settings_defaults () {
-     return array(
+     $settings_defaults =  array(
         'notification_severity_filter' => 0,
         'def_severity_filter' => 2,
         'manager_role' => ['administrator'],
         'log_entries_per_page' => 100
     );
+    if ( clgs_is_network_mode() ) {
+        unset( $settings_defaults['manager_role'] );
+    }
+    return $settings_defaults;
 }
 
 /**
@@ -57,7 +61,6 @@ function clgs_add_settings ( $network_wide ) {
 
     $settings_defaults = clgs_settings_defaults();
     if ( $network_wide ) {
-        unset( $settings_defaults['manager_role'] );
         unset( $clgs_settings_structure['manager_role'] );
     } else {
         foreach ( clgs_get_settings()['manager_role'] as $key => $name ) {
@@ -106,12 +109,20 @@ function clgs_settings_page () {
  * @return void
  */
 function clgs_settings_init () { 
-    global $clgs_settings_structure;
+    global $clgs_settings_structure, $wp_version;
+
+    $setting_attributes = 'clgs_sanitize';
+    if ( version_compare( $wp_version, '4.6', '>' ) ) {
+        $setting_attributes = array(
+            'sanitize_callback' => 'clgs_sanitize',
+            'default' => clgs_settings_defaults()
+        );
+    }
 
     if ( clgs_is_network_mode() ) {
         unset( $clgs_settings_structure['manager_role'] );
     } else {
-        register_setting( CLGS_SETTINGS, CLGS_SETTINGS, 'clgs_sanitize' );
+        register_setting( CLGS_SETTINGS, CLGS_SETTINGS, $setting_attributes );
     }
 
     add_settings_section(CLGS_GROUP, null, null, CLGS_OPTION_PAGE);

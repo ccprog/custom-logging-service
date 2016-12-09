@@ -24,12 +24,7 @@ function clgs_is_network_mode() {
 function clgs_get_settings() {
     $settings_defaults = clgs_settings_defaults();
     
-    if( clgs_is_network_mode() ) {
-        unset( $settings_defaults['manager_role'] );
-        $settings = get_site_option( CLGS_SETTINGS, array() );
-    } else {
-        $settings = get_option( CLGS_SETTINGS, array() );
-    }
+    $settings = get_site_option( CLGS_SETTINGS, array() );
 
     $args = wp_parse_args( $settings, $settings_defaults ); // needed?
     return $args;
