@@ -91,7 +91,6 @@ $clgs_last_log = new Clgs_last_log();
 
 require_once plugin_dir_path( __FILE__ ).'includes/settings.php';
 require_once plugin_dir_path( __FILE__ ).'includes/manager.php';
-require_once plugin_dir_path( __FILE__ ).'includes/class-manager-table.php';
 
 $plugin_basename = plugin_basename( __FILE__ );
 
@@ -190,9 +189,31 @@ add_action( 'plugins_loaded', 'clgs_load_textdomain' );
  */
 function clgs_admin_enqueue_styles() {
 	if( isset( $_REQUEST["page"] ) && CLGS_LOG_PAGE == $_REQUEST["page"] ) {
+        $columns = array();
+        
+        foreach ( clgs_get_item_schema() as $key => $attrs ) {
+            if ( $attrs['info']['column'] ) {
+                $columns[$key] = $attrs['title'];
+            }
+        }
+
 		wp_enqueue_style( "clgs-admin-style", plugins_url( "style.css", __FILE__ ) );
         wp_enqueue_script( "clgs-manager-script",
-            plugins_url( "includes/manager.js", __FILE__ ), ['jquery'], false, true );
+            plugins_url( "includes/manager.js", __FILE__ ), ['jquery', 'backbone'], false, true );
+        wp_localize_script( "clgs-manager-script", "clgs_base", array(
+            'l10n' => array(
+                'unseen' => str_replace( '%d', '<%= count %>', __( '%d unseen Log entries', 'custom-logging-service' ) ),
+                'of' => __('of'),
+                'items' => __('items'),
+                'item' => __('item'),
+                'no_items' => __( 'No items found.' ),
+                'new' => __('New Entry', 'custom-logging-service'),
+                'more' => __('Show more details'),
+            ),
+            'rest_base' => get_rest_url() . 'clgs',
+            'nonce' => wp_create_nonce( 'wp_rest' ),
+            'used_columns' => $columns,
+        ) );
 	}
 }
 add_action( "admin_enqueue_scripts", "clgs_admin_enqueue_styles" );
@@ -220,6 +241,22 @@ function clgs_admin_menu () {
 }
 add_action( 'network_admin_menu', 'clgs_admin_menu' );
 add_action( 'admin_menu', 'clgs_admin_menu' );
+
+/**
+ * registers the REST routes
+ *
+ * @return void
+ */
+function clgs_register_rest_routes($server) {
+    require_once plugin_dir_path( __FILE__ ).'includes/class-rest-controller.php';
+    require_once plugin_dir_path( __FILE__ ).'includes/class-rest-categories.php';
+    require_once plugin_dir_path( __FILE__ ).'includes/class-rest-logs.php';
+    $controller = new Clgs_REST_Categories();
+    $controller->register_routes();
+    $controller = new Clgs_REST_Logs();
+    $controller->register_routes();
+}
+add_action( 'rest_api_init', 'clgs_register_rest_routes' );
 
 /*** Public API ***/
 
