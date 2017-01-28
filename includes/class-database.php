@@ -200,7 +200,7 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
         $clgs_last_log->flush();
         $where = compact ( 'category' );
         switch ( $which ) {
-        case 'mark-category':
+        case 'mark-seen':
             $data = array( 'seen' => true );
             $result = $wpdb->update( $this->entries_table_name, $data, $where, '%d' );
             break;
@@ -280,10 +280,15 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
      * @return mixed
      */
     function get_entries( $where, $count = false, $limit = null, $order = null ) {
-        global $wpdb;
+        global $wpdb, $severity_list;
 
-        // SELECT claus
-        $what = $count ? 'COUNT(*)' : "*";
+        // SELECT clause
+        if ( $count ) {
+            $what = array_map( function ( $key ) use ( $severity_list ) {
+                return "SUM(IF(severity=$key, 1, 0)) AS $severity_list[$key]";
+            }, array_keys($severity_list) );
+            $what = implode(', ', $what) . ', COUNT(*) AS total';
+        }
 
         $cond = array();
         $args = array();
@@ -336,17 +341,23 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
         }
 
         /* Build a query string */
-        $query = "SELECT $what
-        FROM $this->entries_table_name
-        $where
-        $order_by
-        $limit";
+        if ( $count ) {
+            $query ="SELECT $what
+            FROM $this->entries_table_name
+            $where";
+        } else {
+            $query = "SELECT *
+            FROM $this->entries_table_name
+            $where
+            $order_by
+            $limit";
+        }
         if ( count( $args ) > 0 ) {
             $query = $wpdb->prepare( $query, $args );
         }
 
-        if( $count ) {
-            return $wpdb->get_var( $query );
+       if( $count ) {
+            return $wpdb->get_row( $query );
         } else {
             return $wpdb->get_results( $query );
         }
