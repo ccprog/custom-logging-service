@@ -91,7 +91,7 @@ require_once plugin_dir_path( __FILE__ ).'includes/class-last-log.php';
 $clgs_last_log = new Clgs_last_log();
 
 require_once plugin_dir_path( __FILE__ ).'includes/settings.php';
-require_once plugin_dir_path( __FILE__ ).'includes/manager.php';
+require_once plugin_dir_path( __FILE__ ).'includes/class-manager.php';
 
 $plugin_basename = plugin_basename( __FILE__ );
 
@@ -233,13 +233,33 @@ function clgs_admin_menu () {
         $option_cap =  'manage_network_options';
     }
 
+    $manager = new Clgs_Manager();
+
 	add_dashboard_page( $log_heading, $log_heading . clgs_unseen_field(),
-		CLGS_CAP, CLGS_LOG_PAGE, 'clgs_manager_page' );
+        CLGS_CAP, CLGS_LOG_PAGE, array($manager, 'render_page') );
     add_submenu_page( $option_page, $option_heading, $option_heading,
         $option_cap, CLGS_OPTION_PAGE, 'clgs_settings_page' );
 }
 add_action( 'network_admin_menu', 'clgs_admin_menu' );
 add_action( 'admin_menu', 'clgs_admin_menu' );
+
+/**
+ * returns notification bubble for log page menu entry
+ *
+ * @global Clgs_DB $clgs_db
+ *
+ * @return string bubble markup
+ */
+function clgs_unseen_field () {
+    $unseen = clgs_get_unseen();
+
+    if( $unseen > 0 ) {
+        $title = sprintf( __( '%d unseen Log entries', 'custom-logging-service' ), $unseen );
+        return " <span class=\"awaiting-mod count-$unseen\" aria-label=\"$title\"><span>$unseen</span></span>";
+    } else {
+        return '';
+    }
+}
 
 /**
  * registers the REST routes
