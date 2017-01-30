@@ -5,6 +5,16 @@
 class Clgs_DB
 {
     /**
+     * column order of log table
+     *
+     * @access private
+     * @var array
+     */
+    private $col_order = array(
+        'category', 'blog_id', 'blog_name', 'date', 'user_name', 'severity', 'text', 'seen'
+    );
+
+    /**
      * SQL log table name
      *
      * @access private
@@ -215,13 +225,26 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
     }
 
     /**
+     * sort order function for incoming log table columns
+     *
+     * @access private
+     *
+     * @param $col1, $col2 string column names
+     *
+     * @return int
+     */
+    private function order_data ( $col1, $col2 ) {
+        return array_search( $col1, $this->col_order ) - array_search( $col2, $this->col_order );
+    }
+
+    /**
      * insert a log entry
      *
      * @access public
      *
      * @global WPDB $wpdb
      *
-     * @param array(mixed) $data in this order:
+     * @param array(mixed) $data with these columns:
      *     category, blog_id, blog_name, date, user_name, text, severity
      *
      * @return mixed
@@ -229,8 +252,9 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
     function insert_entry( $data ) {
         global $wpdb;
 
+        uksort( $data, array($this, 'order_data') );
         $result = $wpdb->insert( $this->entries_table_name, $data,
-            array( '%s', '%d', '%s', '%d', '%s', '%s', '%d' ) );
+            array( '%s', '%d', '%s', '%d', '%s', '%d', '%s' ) );
         return $result ? $wpdb->insert_id : false;
     }
 
@@ -242,7 +266,7 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
      * @global WPDB $wpdb
      *
      * @param int $entry_id
-     * @param array $data in this order:
+     * @param array $data with these columns:
      *     category, blog_id, blog_name, date, user_name, text, severity, seen
      *
      * @return mixed
@@ -251,8 +275,9 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
         global $wpdb;
 
         $data['seen'] = false;
+        uksort( $data, array($this, 'order_data') );
         return $wpdb->update( $this->entries_table_name, $data, array( 'id' => $entry_id ),
-            array( '%s', '%d', '%s', '%d', '%s', '%s', '%d', '%d' ), '%d' );
+            array( '%s', '%d', '%s', '%d', '%s', '%d', '%s', '%d' ), '%d' );
     }
 
     /**
