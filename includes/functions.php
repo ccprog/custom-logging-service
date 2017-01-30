@@ -31,249 +31,79 @@ function clgs_get_settings() {
 }
 
 /**
- * Get schema for a log entry.
+ * sanitizes log entry and settings arguments
  *
- * @param WP_REST_Request $request Current request.
- * @return array JSON Schema of category data
+ * @global array $allowedtags
+ *
+ * @param mixed $value argument to transform
+ * @param string $rule indentifier for the sanitation method
+ *
+ * @return mixed sane value
  */
-function clgs_get_item_schema () {
-    global $severity_list;
+function clgs_sanitize( $value, $rule ) {
+    global $allowedtags;
 
-    $properties = array(
-        'id' => array(
-            'title'  => __( 'Unique ID', 'custom-logging-service' ),
-            'type'         => 'integer',
-            'readonly'     => true,
-            'info'         => array(
-                'column'      => true,
-            )
-        ),
-        'message' =>  array(
-            'title'        => __( 'Message', 'custom-logging-service' ),
-            'type'         => 'string',
-            'required'     => true,
-            'info'         => array(
-                'column'      => true,
-                'primary'     => true
-            )
-        ),
-        'severity' => array(
-            'title'        => __( 'Severity', 'custom-logging-service' ),
-            'type'         => 'string',
-            'required'     => true,
-            'enum'         => array_values( $severity_list ),
-            'info'         => array(
-                'column'      => true,
-                'target'      => 'severity',
-                'desc_first'  => false
-            )
-        ),
-        'category' => array(
-            'title'        => __( 'Log category', 'custom-logging-service' ),
-            'type'         => 'string',
-            'required'     => true,
-            'maxLength'    => 190,
-            'info'         => array(
-                'column'      => true,
-                'target'      => 'category',
-                'desc_first'  => false
-            )
-        ),
-        'date' => array(
-            'title'        => __( 'Time', 'custom-logging-service' ),
-            'description'  => __( 'Empty <span> with UNIX timestamp as "data-date" attribute.', 'custom-logging-service' ),
-            'type'         => 'string',
-            'required'     => true,
-            'info'         => array(
-                'column'      => true,
-                'target'      => 'date',
-                'desc_first'  => true
-            )
-        ),
-        'seen' => array (
-            'description' => __( 'Old entry', 'custom-logging-service' ),
-            'type'       => 'boolean',
-            'default'    => false,
-            'info'         => array(
-                'column'      => false,
-            )
-        ),
-        'user' => array(
-            'title'        => __( 'User', 'custom-logging-service' ),
-            'description'  => __( 'Login name of the user, preceded by its gravatar.' ),
-            'type'         => 'string',
-            'required'     => true,
-            'info'         => array(
-                'column'      => true,
-                'target'      => 'user_name',
-                'desc_first'  => false
-            )
-        ),
-        'avatar' => array(
-            'description'  => __( 'Gravatar <img> tag of the user.' ),
-            'type'         => 'string',
-            'required'     => true,
-            'info'         => array(
-                'column'      => false,
-            )
-        ),
-    );
-
-    if ( clgs_is_network_mode() && is_main_site() ) {
-        $properties['blog'] = array(
-            'title'        => __( 'Blog', 'custom-logging-service' ),
-            'description'  => __( 'Link to blog', 'custom-logging-service' ),
-            'type'         => 'string',
-            'required'     => true,
-            'info'         => array(
-                'column'      => true,
-                'target'      => 'blog_name',
-                'desc_first'  => false
-            )
-        );
+    switch ( $rule ) {
+    case 'string':
+        return esc_attr( $value );
+    case 'kses_string':
+        $tags = $allowedtags;
+        $tags['br'] = array();
+        return wp_kses( (string)$value, $tags );
+    case 'int':
+        return (int)esc_attr( $value );
+    case 'bool':
+        return (bool)esc_attr( $value );
+    case 'time':
+        if ( in_array( gettype( $value ), ['integer', 'double'] ) ) {
+            return (int)$values[$key];
+        } else {
+            return strtotime( (string)$value );
+        }
     }
-
-    return $properties;
-}
-
-function clgs_get_bulk_schema ( $which ) {
-    $properties = array (
-        'mark-seen' => array (
-            'title'       => __( 'Mark as read', 'custom-logging-service' ),
-            'description' => __( 'Mark whole category %s as read', 'custom-logging-service' ),
-            'context'     => 'edit'
-        ),
-    );
-    if ( 'category' == $which ) {
-        $properties['clear'] = array (
-            'title'       => __( 'Clear', 'custom-logging-service' ),
-            'description' => __( 'Remove all log entries from category %s', 'custom-logging-service' ),
-            'context'     => 'edit'
-        );
-        $properties['unregister'] = array (
-            'title'       => __( "Delete", 'custom-logging-service' ),
-            'description' => __( 'Delete category %s permanently (with all entries)', 'custom-logging-service' ),
-            'context'     => 'delete'
-        );
-    } else {
-        $properties['delete'] = array (
-            'title'       => __( 'Delete', 'custom-logging-service' ),
-            'context'     => 'delete'
-        );
-    }
-
-    return $properties;
 }
 
 /**
- * sanitizes and validates plugin-external arguments
+ * validates log entry and settings arguments
  *
- * @global Clgs_DB $clgs_db
+ * @global Clgs_CB $clgs_db
  * @global array $severity_list
  *
- * @param array $values arguments to test in the format array(
- *      'name' => $value
- * )
- * @param array $config test rules in the format array(
- *      'name' => array(
- *          'sanitize' => string named santitation action or
- *          'sanitize_function' => function a custom value transformation function,
- *          'validate' => string named validation rule or
- *          'validate_array' => array list of valid values,
- *          'default' => mixed optional default value
- *     )
- * )
- * @param string $action form of return in case of validation errrors:
- *     'block':   return false on first error
- *     'hold':    return argument name for first error
- *     'default': return null as argument value or default if one was supplied
+ * @param mixed $value argument to test
+ * @param string $rule indentifier for the validation method
  *
- * @return mixed false, name of first erroneous argument or array of sane values
+ * @return boolean for passing the test
  */
-function clgs_evaluate( $values, $config, $action = 'default' ) {
-    global $clgs_db, $severity_list, $allowedtags;
+function clgs_validate ( $value, $rule ) {
+    global $clgs_db, $severity_list;
 
-    $sanitized = array();
-    foreach ( $config as $key => $rule ) {
-        if ( !isset(  $values[$key] ) ) {
-            $sane = null;
-        } else if ( isset( $rule['sanitize_function'] ) ) {
-            $sane = call_user_func( $rule['sanitize_function'], $values[$key], $key );
-        } else switch ( $rule['sanitize'] ) {
-        case 'string':
-            $sane = esc_attr( $values[$key] );
-            break;
-        case 'kses_string':
-			$tags = $allowedtags;
-			$tags['br'] = array();
-            $sane = wp_kses( (string)$values[$key], $tags );
-            break;
-        case 'toupper_string':
-            $sane = strtoupper( esc_attr( $values[$key] ) );
-            break;
-        case 'int':
-            $sane = (int)esc_attr( $values[$key] );
-            break;
-        case 'bool':
-            $sane = (bool)esc_attr( $values[$key] );
-            break;
-        case 'time':
-            if ( in_array( gettype( $values[$key] ), ['integer', 'double'] ) ) {
-                $sane = (int)$values[$key];
-            } else {
-                $sane = strtotime( (string)$values[$key] );
-            }
-            break;
-        }
-
-        if ( isset( $rule['validate_array'] ) ) {
-            $passed = in_array( $sane, $rule['validate_array'] );
-        } else switch ( $rule['validate'] ) {
-        case 'exists':
-            $passed = !is_null( $sane );
-            break;
-        case 'sanitation':
-            $passed = ( $sane !== false );
-            break;
-        case 'severity':
-            $passed = array_key_exists( $sane, $severity_list );
-            break;
-        case 'role':
-            $passed = !is_null( $sane ) && array_reduce( $sane, function( $carry, $entry ) {
-                return $carry && wp_roles()->is_role( $entry );
-            }, true );
-            break;
-        case 'registered':
-            $passed = $clgs_db->is_registered( $sane );
-            break;
-        case 'positive':
-            $passed = ( $sane > 0 );
-            break;
-        }
-
-        if ( $passed ) {
-            $sanitized[$key] = $sane;
-        } elseif ( 'block' == $action ) {
-            return false;
-        } else if ( 'hold' == $action ) {
-            return $key;
-        } else if ( isset( $rule['default'] ) ) {
-            $sanitized[$key] = $rule['default'];
-        }
+    switch ( $rule ) {
+    case 'exists':
+        return !is_null( $value );
+    case 'length':
+        return strlen( $value ) > 0;
+    case 'severity':
+        return array_key_exists( $value, $severity_list );
+    case 'role':
+        return !is_null( $value ) && array_reduce( $value, function( $carry, $entry ) {
+            return $carry && wp_roles()->is_role( $entry );
+        }, true );
+    case 'registered':
+        return $clgs_db->is_registered( $value );
+    case 'positive':
+        return ( $value > 0 );
     }
-
-    return $sanitized;
 }
 
 /**
  * helper santation function: normalize to array
  *
  * @param mixed $value input argument
- * @param mixed $key argument name
+ * @param boolean $cast cast entries to integer
  *
  * @return mixed array of field or null if uninterpretable or no entries
  */
-function clgs_to_array ( $value, $key ) {
+function clgs_to_array ( $value, $cast = false ) {
     if ( 'array' == gettype( $value ) ) {
         $sane = $value;
     } elseif ( 'string' == gettype( $value ) ) {
@@ -285,7 +115,7 @@ function clgs_to_array ( $value, $key ) {
     if ( count( $sane ) ) {
         foreach ( $sane as &$entry ) {
             $entry = esc_attr( $entry );
-            if ( 'entries' == $key ){
+            if ( $cast ){
                 $entry = (int)$entry;
             }
         }
@@ -304,7 +134,7 @@ function clgs_to_array ( $value, $key ) {
  *
  * @return mixed user display name or null if uninterpretable
  */
-function clgs_to_user ( $value, $key ) {
+function clgs_to_user ( $value ) {
     switch ( gettype( $value ) ) {
     case 'integer':
         $value = get_user_by( 'id', $value );
@@ -371,6 +201,13 @@ function clgs_map_item ( $names, $item ) {
     return $formatted;
 }
 
+/**
+ * retrieves the total count of unseen log entries
+ *
+ * @global Clgs_DB $clgs_db
+ *
+ * @return int number of unseen entries
+ */
 function clgs_get_unseen () {
     global $clgs_db;
 

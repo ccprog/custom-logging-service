@@ -72,6 +72,7 @@ if ( ! function_exists( 'wp_roles' ) ) {
 }
 
 require_once plugin_dir_path( __FILE__ ).'includes/functions.php';
+require_once plugin_dir_path( __FILE__ ).'includes/schemas.php';
 
 require_once plugin_dir_path( __FILE__ ).'includes/class-database.php';
 /**
@@ -190,11 +191,9 @@ add_action( 'plugins_loaded', 'clgs_load_textdomain' );
 function clgs_admin_enqueue_styles() {
 	if( isset( $_REQUEST["page"] ) && CLGS_LOG_PAGE == $_REQUEST["page"] ) {
         $columns = array();
-        
-        foreach ( clgs_get_item_schema() as $key => $attrs ) {
-            if ( $attrs['info']['column'] ) {
-                $columns[$key] = $attrs['title'];
-            }
+
+        foreach ( clgs_get_item_schema( 'column' ) as $key => $attrs ) {
+            $columns[$key] = $attrs['title'];
         }
 
 		wp_enqueue_style( "clgs-admin-style", plugins_url( "style.css", __FILE__ ) );
@@ -290,7 +289,7 @@ function clgs_is_registered ( $category ) {
 function clgs_register ( $category, $description ) {
     global $clgs_db;
 
-    $description = wp_kses_data( $description );
+    $description = clgs_sanitize( $description, 'kses_string' );
     return !$clgs_db->is_registered( $category ) &&
         $clgs_db->category_fits( $category ) &&
         $clgs_db->register( $category, $description );
@@ -333,7 +332,7 @@ function clgs_clear ( $category ) {
  * @global Clgs_Last_Log $clgs_last_log
  *
  * @param string $category a registered category name
- * @param string $text the logged message, can contain HTML same as comments
+ * @param string $message the logged message, can contain HTML same as comments
  * (filtered by wp_kses_data)
  * @param int $severity one of defined severity levels (see above); if missing
  * defaults to CLGS_NOCATEGORY
@@ -345,69 +344,44 @@ function clgs_clear ( $category ) {
  *
  * @return boolean false if entering the log failed.
  */
-function clgs_log ( $category, $text, $severity = null, $user = null, $blog_id = null, $date = null ) {
+function clgs_log ( $category, $message, $severity = null, $user = null, $blog_id = null, $date = null ) {
     global $clgs_db, $clgs_last_log;
 
-    // category must pass validation
-    if ( is_null ( $date) ) {
-        $date = time();
-    }
-    $rules = array (
-        'category' => array( 'sanitize' => 'string', 'validate' => 'registered' ),
-        'text' => array( 'sanitize' => 'kses_string', 'validate' => 'length' ),
-        'date' => array( 'sanitize' => 'time', 'validate' => 'sanitation' )
-    );
-    $must = clgs_evaluate( compact( 'category', 'text', 'date' ), $rules, 'block' );
-    if ( !$must ) {
-        return false;
-    }
+    $data = array();
+    foreach ( clgs_get_item_schema('api') as $key => $rule ) {
+        if ( !isset ( $$key ) ) {
+            if ( $rule['default'] ) {
+                $data[$rule['db_key']] = $rule['default'];
+            } else {
+                return false;
+            }
+        } elseif ( 'user' == $key ) {
+            $data[$rule['db_key']] = clgs_to_user( $user );
+        } else {
+            $data[$rule['db_key']] = clgs_sanitize( $$key, $rule['sanitize'] );
+        }
 
-    // all others have a default
-    $rules = array (
-        'user' => array(
-            'sanitize_function' => 'clgs_to_user',
-            'validate' => 'exists',
-            'default' => is_user_logged_in() ? wp_get_current_user()->display_name : ' &mdash; '
-        ),
-        'blog_id' => array(
-            'sanitize' => 'int',
-            'validate' => 'positive',
-            'default' => get_current_blog_id()
-        ),
-        'severity' => array(
-            'sanitize' => 'int',
-            'validate' => 'severity',
-            'default' => CLGS_NOSEVERITY
-        )
-    );
-    $sane = clgs_evaluate( compact( 'date', 'user', 'blog_id', 'severity' ), $rules );
+        if ( 'date' != $key && !clgs_validate( $data[$rule['db_key']], $rule['validate'] ) ) {
+            return false;
+        }
+    }
 
 	// get blog name
 	if( clgs_is_network_mode() ) {
-		switch_to_blog( $sane['blog_id'] );
-		$blog_name = get_bloginfo( 'name' );
+		switch_to_blog( $blog_id );
+        $data['blog_name'] = get_bloginfo( 'name' );
 		restore_current_blog();
 	} else {
-		$blog_name = get_bloginfo( 'name' );
+		$data['blog_name'] = get_bloginfo( 'name' );
 	}
-
-    $data = array(
-	    'category' =>$must['category'],
-	    'blog_id' => $sane['blog_id'],
-	    'blog_name' => $blog_name,
-	    'date' => $must['date'],
-	    'user_name' => $sane['user'],
-	    'text' => $must['text'],
-	    'severity' => $sane['severity']
-    );
 
     if( $clgs_last_log->compare( $data ) ) {
         $clgs_last_log->write();
 
         $first =  $clgs_last_log->data['date'];
-        $data['text'] = '(' . $clgs_last_log->count . '× ' .
+        $data['message'] = '(' . $clgs_last_log->count . '× ' .
             __('since ', 'custom-logging-service' ) . 
-            '<span data-date="'. $first .'"></span>):<br/>' . $data['text'];
+            '<span data-date="'. $first .'"></span>):<br/>' . $data['message'];
 
         $ok = (bool)$clgs_db->update_entry( $clgs_last_log->entry_id, $data );
     } else {

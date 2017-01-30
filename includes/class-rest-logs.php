@@ -223,7 +223,6 @@ class Clgs_REST_Logs extends Clgs_REST_Controller {
         $entry_ids = $request['entries'];
 
         $result = $clgs_db->bulk_entries( $action, $entry_ids );
-        $result = count( $entry_ids );
 
         if ( $result ) {
             $response_data = new WP_REST_Response( array(
@@ -384,17 +383,11 @@ class Clgs_REST_Logs extends Clgs_REST_Controller {
      * @return array JSON Schema of category data
      */
     public function get_item_schema ( ) {
-        $properties = clgs_get_item_schema();
-
-        foreach ( $properties as $column => $attrs) {
-            unset( $attrs['info'] );
-        }
-
         return array(
         '$schema'     => 'http://json-schema.org/draft-04/schema#',
         'title'       => 'log',
         'type'        => 'object',
-        'properties'  => $properties,
+        'properties'  => clgs_get_item_schema( 'rest' )
     );
     }
 }

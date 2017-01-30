@@ -38,44 +38,42 @@ function clgs_print_category_actions () {
  * Print column headers, accounting for sortable columns.
  */
 function clgs_print_column_headers() {
-    foreach ( clgs_get_item_schema() as $key => $attrs ) {
-        if ( $attrs['info']['column'] ) {
-            $class = array( 'manage-column' );
+    foreach ( clgs_get_item_schema( 'column' ) as $key => $attrs ) {
+        $class = array( 'manage-column' );
 
-            if ('id' == $key) {
-                $column_key = 'cb';
-                $class[] = 'check-column';
-                $column_content = '<label class="screen-reader-text" for="cb-select-all">' .
-                    __( 'Select All' ) . '</label>' . '<input id="cb-select-all" type="checkbox" />';
-            } else {
-                $column_key = $key;
-                $column_content = $attrs['title'];
-            }
-
-            $class[] = "column-$column_key";
-
-            if ( isset( $attrs['info']['primary'] ) ) {
-                $class[] = 'column-primary';
-            }
-
-            if ( isset( $attrs['info']['desc_first'] ) ) {
-                $orderby = $attrs['info']['target'];
-
-                $class[] = 'sortable';
-                $class[] = $attrs['info']['desc_first'] ? 'asc' : 'desc';
-
-                $column_content = '<a href=""><span>' . $column_content .
-                    '</span><span class="sorting-indicator"></span></a>';
-            }
-
-            $tag = ( 'cb' === $column_key ) ? 'td' : 'th';
-            $scope = ( 'th' === $tag ) ? 'scope="col"' : '';
-            $id = "data-id='$column_key'";
-
-            $class = "class='" . join( ' ', $class ) . "'";
-
-            echo "<$tag $scope $id $class>$column_content</$tag>";
+        if ('id' == $key) {
+            $column_key = 'cb';
+            $class[] = 'check-column';
+            $column_content = '<label class="screen-reader-text" for="cb-select-all">' .
+                __( 'Select All' ) . '</label>' . '<input id="cb-select-all" type="checkbox" />';
+        } else {
+            $column_key = $key;
+            $column_content = $attrs['title'];
         }
+
+        $class[] = "column-$column_key";
+
+        if ( isset( $attrs['primary'] ) ) {
+            $class[] = 'column-primary';
+        }
+
+        if ( isset( $attrs['desc_first'] ) ) {
+            $orderby = $attrs['target'];
+
+            $class[] = 'sortable';
+            $class[] = $attrs['desc_first'] ? 'asc' : 'desc';
+
+            $column_content = '<a href=""><span>' . $column_content .
+                '</span><span class="sorting-indicator"></span></a>';
+        }
+
+        $tag = ( 'cb' === $column_key ) ? 'td' : 'th';
+        $scope = ( 'th' === $tag ) ? 'scope="col"' : '';
+        $id = "data-id='$column_key'";
+
+        $class = "class='" . join( ' ', $class ) . "'";
+
+        echo "<$tag $scope $id $class>$column_content</$tag>";
     }
 }
 

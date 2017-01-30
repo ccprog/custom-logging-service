@@ -113,7 +113,6 @@ class Clgs_REST_Categories extends Clgs_REST_Controller {
         $previous = $this->get_item( $request );
         $previous_data = $previous->get_data();
         $result = $clgs_db->bulk_category( $action, $name );
-        $result = 1;
 
         if ( $result ) {
             $response_data = new WP_REST_Response( array(

@@ -11,10 +11,10 @@
     height: 100%;
 }
 
-.wp-list-table .column-category { width: 10em; }
+.wp-list-table .column-category { width: 11em; }
 .wp-list-table .column-date { width: 6em; }
 .wp-list-table .column-blog { width: 10em; }
-.wp-list-table .column-user { width: 10em; }
+.wp-list-table .column-user { width: 11em; }
 .wp-list-table .column-severity { width: 6em; }
 .wp-list-table tr.unseen td.category > span:first-child,
 .wp-list-table tr.unseen td.time {

@@ -16,7 +16,6 @@ $clgs_settings_structure = array(
         'desc' => __( 'Default minimum severity filter on the log page', 'custom-logging-service' )
     ),
     'manager_role' => array(
-        'sanitize_function' => 'clgs_to_array',
         'validate' => 'role',
         'desc' => __( 'Roles that can use the logs page', 'custom-logging-service' )
     ),
@@ -111,10 +110,10 @@ function clgs_settings_page () {
 function clgs_settings_init () { 
     global $clgs_settings_structure, $wp_version;
 
-    $setting_attributes = 'clgs_sanitize';
+    $setting_attributes = 'clgs_sanitize_settings';
     if ( version_compare( $wp_version, '4.6', '>' ) ) {
         $setting_attributes = array(
-            'sanitize_callback' => 'clgs_sanitize',
+            'sanitize_callback' => 'clgs_sanitize_settings',
             'default' => clgs_settings_defaults()
         );
     }
@@ -147,18 +146,29 @@ add_action( 'admin_init', 'clgs_settings_init' );
  *
  * @return array sane settings, unaltered in case of an error
  */
-function clgs_sanitize ( $input ) {
+function clgs_sanitize_settings ( $input ) {
     global $clgs_settings_structure;
 
     $original = clgs_get_settings();
-    $result = clgs_evaluate( $input, $clgs_settings_structure, 'hold' );
-    if ( 'string' == gettype( $result ) ) {
-        $offending = __( $clgs_settings_structure[$result]['desc'], 'custom-logging-service' );
-        $message = sprintf( __( 'The setting %s was invalid, nothing saved.', 'custom-logging-service' ),
-            '<em>"' . $offending . '"</em>' );
-        add_settings_error( CLGS_SETTINGS, 'clgs_error', $message );
-        return $original;
+
+    $result = array();
+    foreach ($clgs_settings_structure as $key => $rules) {
+        if ( 'manager_role' == $key ) {
+            $result[$key] = clgs_to_array( $input[$key] );
+        } else {
+            $result[$key] = clgs_sanitize( $input[$key], $rules['sanitize'] );
+        }
+
+        if ( !clgs_validate( $result[$key], $rules['validate'] ) ) {
+            $offending = __( $clgs_settings_structure[$key]['desc'], 'custom-logging-service' );
+            $message = sprintf( __( 'The setting %s was invalid, nothing saved.', 'custom-logging-service' ),
+                '<em>"' . $offending . '"</em>' );
+            add_settings_error( CLGS_SETTINGS, 'clgs_error', $message );
+
+            return $original;
+        }
     }
+
     return array_merge($original, $result );
 }
 
@@ -241,7 +251,7 @@ function clgs_save_network_settings () {
     check_admin_referer( CLGS_SETTINGS . '-options' );
     if ( !current_user_can( 'manage_network_options' ) ) wp_die();
 
-    $settings = clgs_sanitize( $_POST[ CLGS_SETTINGS ] );
+    $settings = clgs_sanitize_settings( $_POST[ CLGS_SETTINGS ] );
     update_site_option( CLGS_SETTINGS, $settings );
 
 	if ( !count( get_settings_errors() ) )

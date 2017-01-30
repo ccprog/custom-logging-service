@@ -106,7 +106,7 @@ abstract class Clgs_REST_Controller extends WP_REST_Controller {
      * @return WP_Error|array[int]
      */
     public function sanitize_entries_list ( $value, $request, $param ) {
-        $list = clgs_to_array( $value, $param );
+        $list = clgs_to_array( $value, true );
 
         if ( ! isset( $list ) ) {
             return new WP_Error( 'rest_invalid_param', __( 'The entries argument must be a list of id numbers.', 'custom-logging-service' ) );
