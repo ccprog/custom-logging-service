@@ -44,6 +44,8 @@ define( 'CLGS_WARNING', 3 );
 define( 'CLGS_ERROR', 4 );
 define( 'CLGS_FATALERROR', 5 );
 
+global $severity_list, $clgs_db, $clgs_last_log;
+
 /**
  * list of severity level names
  *
@@ -58,8 +60,6 @@ $severity_list = [
     CLGS_FATALERROR => 'fatal'
 ];
 
-global $clgs_db;
-
 if ( ! function_exists( 'wp_roles' ) ) {
     function wp_roles() {
         global $wp_roles;
@@ -73,25 +73,21 @@ if ( ! function_exists( 'wp_roles' ) ) {
 
 require_once plugin_dir_path( __FILE__ ).'includes/functions.php';
 require_once plugin_dir_path( __FILE__ ).'includes/schemas.php';
-
-require_once plugin_dir_path( __FILE__ ).'includes/class-database.php';
-/**
- * Database interface object
- *
- *  @var Clgs_DB
- */
-$clgs_db = new Clgs_DB();
-
-require_once plugin_dir_path( __FILE__ ).'includes/class-last-log.php';
-/**
- * entry cache object
- *
- *  @var Clgs_DB
- */
-$clgs_last_log = new Clgs_last_log();
-
 require_once plugin_dir_path( __FILE__ ).'includes/settings.php';
-require_once plugin_dir_path( __FILE__ ).'includes/class-manager.php';
+
+spl_autoload_register(function ($class_name) {
+    $class_map = array(
+        'Clgs_DB' => 'includes/class-database.php',
+        'Clgs_last_log' => 'includes/class-last-log.php',
+        'Clgs_Manager' => 'includes/class-manager.php',
+        'Clgs_REST_Controller' => 'includes/class-rest-controller.php',
+        'Clgs_REST_Categories' => 'includes/class-rest-categories.php',
+        'Clgs_REST_Logs' => 'includes/class-rest-logs.php'  
+    );
+    if (isset($class_map[$class_name])) {
+        require plugin_dir_path( __FILE__ ) . $class_map[$class_name];
+    }
+});
 
 $plugin_basename = plugin_basename( __FILE__ );
 
@@ -114,6 +110,8 @@ function clgs_activation ( $network_wide = null ) {
         trigger_error( 'Plugin could not be activated.', E_USER_ERROR );
     }
 
+    $clgs_db = new Clgs_DB();
+
     $clgs_db->create();
     clgs_add_settings( $network_wide );
     update_option( 'clgs_version', CLGS_VERSION );
@@ -121,11 +119,20 @@ function clgs_activation ( $network_wide = null ) {
 register_activation_hook( __FILE__, 'clgs_activation' );
 
 /**
+ * global class setup and
  * placeholder routine for update actions
+ *
+ * @global Clgs_DB $clgs_db
+ * @global Clgs_DB $clgs_last_log
  *
  * @return void
  */
 function clgs_update () {
+    global $clgs_db, $clgs_last_log;
+
+    if (!isset($clgs_db)) $clgs_db = new Clgs_DB();
+    if (!isset($clgs_last_log)) $clgs_last_log = new Clgs_last_log();
+
     $old_version = get_option( 'clgs_version' );
     if ( version_compare( CLGS_VERSION, $old_version , '<' ) ) {
         // placeholder
@@ -267,9 +274,6 @@ function clgs_unseen_field () {
  * @return void
  */
 function clgs_register_rest_routes($server) {
-    require_once plugin_dir_path( __FILE__ ).'includes/class-rest-controller.php';
-    require_once plugin_dir_path( __FILE__ ).'includes/class-rest-categories.php';
-    require_once plugin_dir_path( __FILE__ ).'includes/class-rest-logs.php';
     $controller = new Clgs_REST_Categories();
     $controller->register_routes();
     $controller = new Clgs_REST_Logs();

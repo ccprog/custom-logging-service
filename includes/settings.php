@@ -4,32 +4,38 @@
  *
  * @var array
  */
-$clgs_settings_structure = array(
-    'notification_severity_filter' => array(
-        'sanitize' => 'int',
-        'validate' => 'severity',
-        'desc' => __( 'Minimum severity for notification in administration menu', 'custom-logging-service' )
-    ),
-    'def_severity_filter' => array(
-        'sanitize' => 'int',
-        'validate' => 'severity',
-        'desc' => __( 'Default minimum severity filter on the log page', 'custom-logging-service' )
-    ),
-    'manager_role' => array(
-        'validate' => 'role',
-        'desc' => __( 'Roles that can use the logs page', 'custom-logging-service' )
-    ),
-    'log_entries_per_page' => array(
-        'sanitize' => 'int',
-        'validate' => 'positive',
-        'desc' => __( 'Log entries per page', 'custom-logging-service' )
-    )
-);
+function clgs_get_settings_structure () {
+    global $network_wide;
+    
+    $struct = array(
+        'notification_severity_filter' => array(
+            'sanitize' => 'int',
+            'validate' => 'severity',
+            'desc' => __( 'Minimum severity for notification in administration menu', 'custom-logging-service' )
+        ),
+        'def_severity_filter' => array(
+            'sanitize' => 'int',
+            'validate' => 'severity',
+            'desc' => __( 'Default minimum severity filter on the log page', 'custom-logging-service' )
+        ),
+        'manager_role' => array(
+            'validate' => 'role',
+            'desc' => __( 'Roles that can use the logs page', 'custom-logging-service' )
+        ),
+        'log_entries_per_page' => array(
+            'sanitize' => 'int',
+            'validate' => 'positive',
+            'desc' => __( 'Log entries per page', 'custom-logging-service' )
+        )
+    );
+    if ( $network_wide ) {
+        unset( $struct['manager_role'] );
+    }
+    return $struct;
+}
 
 /**
  * returns default settings
- *
- * @global array $clgs_settings_structure
  *
  * @return array
  */
@@ -49,19 +55,13 @@ function clgs_settings_defaults () {
 /**
  * writes default settings to DB option
  *
- * @global array $clgs_settings_structure
- *
  * @param bool $network_wide indicates network install
  *
  * @return void
  */
 function clgs_add_settings ( $network_wide ) {
-    global $clgs_settings_structure;
-
     $settings_defaults = clgs_settings_defaults();
-    if ( $network_wide ) {
-        unset( $clgs_settings_structure['manager_role'] );
-    } else {
+    if ( !$network_wide ) {
         foreach ( clgs_get_settings()['manager_role'] as $key => $name ) {
             wp_roles()->add_cap( $name, CLGS_CAP );
         }
@@ -103,12 +103,10 @@ function clgs_settings_page () {
 /**
  * inits setting fields for settings page
  *
- * @global array $clgs_settings_structure
- *
  * @return void
  */
 function clgs_settings_init () { 
-    global $clgs_settings_structure, $wp_version;
+    global $wp_version;
 
     $setting_attributes = 'clgs_sanitize_settings';
     if ( version_compare( $wp_version, '4.6', '>' ) ) {
@@ -118,15 +116,13 @@ function clgs_settings_init () {
         );
     }
 
-    if ( clgs_is_network_mode() ) {
-        unset( $clgs_settings_structure['manager_role'] );
-    } else {
+    if ( !clgs_is_network_mode() ) {
         register_setting( CLGS_SETTINGS, CLGS_SETTINGS, $setting_attributes );
     }
 
     add_settings_section(CLGS_GROUP, null, null, CLGS_OPTION_PAGE);
 
-    foreach ( $clgs_settings_structure as $key => $rule ) {
+    foreach ( clgs_get_settings_structure() as $key => $rule ) {
         add_settings_field( 
             $key, 
             __( $rule['desc'], 'custom-logging-service' ), 
@@ -142,17 +138,15 @@ add_action( 'admin_init', 'clgs_settings_init' );
 /**
  * sanitation function for settings page
  *
- * @global array $clgs_settings_structure
- *
  * @return array sane settings, unaltered in case of an error
  */
 function clgs_sanitize_settings ( $input ) {
-    global $clgs_settings_structure;
+    $settings_structure = clgs_get_settings_structure();
 
     $original = clgs_get_settings();
 
     $result = array();
-    foreach ($clgs_settings_structure as $key => $rules) {
+    foreach ($settings_structure as $key => $rules) {
         if ( 'manager_role' == $key ) {
             $result[$key] = clgs_to_array( $input[$key] );
         } else {
@@ -160,7 +154,7 @@ function clgs_sanitize_settings ( $input ) {
         }
 
         if ( !clgs_validate( $result[$key], $rules['validate'] ) ) {
-            $offending = __( $clgs_settings_structure[$key]['desc'], 'custom-logging-service' );
+            $offending = __( $settings_structure[$key]['desc'], 'custom-logging-service' );
             $message = sprintf( __( 'The setting %s was invalid, nothing saved.', 'custom-logging-service' ),
                 '<em>"' . $offending . '"</em>' );
             add_settings_error( CLGS_SETTINGS, 'clgs_error', $message );
