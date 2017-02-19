@@ -2,5 +2,5 @@ node_modules/
 vendor/
 composer.lock
 php_errors.log
-tests/bootstrap.php
+tests/php/bootstrap.php
 *~
