@@ -8,10 +8,10 @@ class Clgs_Manager {
         $this->screen_reader_content = $screen->get_screen_reader_content();
 
         $this->category_bulk_schema = clgs_get_bulk_schema ( 'category' );
-        $this->log_bulk_schema = clgs_get_bulk_schema ( 'category' );
+        $this->log_bulk_schema = clgs_get_bulk_schema ( 'logs' );
         $this->item_schema = clgs_get_item_schema( 'column' );
     }
-    
+
     /**
     * render category actions (links)
     *
