@@ -371,33 +371,9 @@ function clgs_clear ( $category ) {
 function clgs_log ( $category, $message, $severity = null, $user = null, $blog_id = null, $date = null ) {
     global $clgs_db, $clgs_last_log;
 
-    $data = array();
-    foreach ( clgs_get_item_schema('api') as $key => $rule ) {
-        if ( !isset ( $$key ) ) {
-            if ( $rule['default'] ) {
-                $data[$rule['db_key']] = $rule['default'];
-            } else {
-                return false;
-            }
-        } elseif ( 'user' == $key ) {
-            $data[$rule['db_key']] = clgs_to_user( $user );
-        } else {
-            $data[$rule['db_key']] = clgs_sanitize( $$key, $rule['sanitize'] );
-        }
-
-        if ( 'date' != $key && !clgs_validate( $data[$rule['db_key']], $rule['validate'] ) ) {
-            return false;
-        }
-    }
-
-	// get blog name
-	if( clgs_is_network_mode() ) {
-		switch_to_blog( $blog_id );
-        $data['blog_name'] = get_bloginfo( 'name' );
-		restore_current_blog();
-	} else {
-		$data['blog_name'] = get_bloginfo( 'name' );
-	}
+    $args = compact('category', 'message', 'severity', 'user', 'blog_id', 'date');
+    $data = clgs_prepare_data($args);
+    if (false === $data) return false;
 
     if( $clgs_last_log->compare( $data ) ) {
         $clgs_last_log->write();

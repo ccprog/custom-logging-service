@@ -23,7 +23,7 @@ function clgs_is_network_mode() {
  */
 function clgs_get_settings() {
     $settings_defaults = clgs_settings_defaults();
-    
+
     $settings = get_site_option( CLGS_SETTINGS, array() );
 
     $args = wp_parse_args( $settings, $settings_defaults ); // needed?
@@ -56,7 +56,7 @@ function clgs_sanitize( $value, $rule ) {
         return (bool)esc_attr( $value );
     case 'time':
         if ( in_array( gettype( $value ), ['integer', 'double'] ) ) {
-            return (int)$values[$key];
+            return (int)$value;
         } else {
             return strtotime( (string)$value );
         }
@@ -107,20 +107,16 @@ function clgs_to_array ( $value, $cast = false ) {
     if ( 'array' == gettype( $value ) ) {
         $sane = $value;
     } elseif ( 'string' == gettype( $value ) ) {
-            $sane = explode( ',', esc_attr( $value ) );
+        $sane = '' === $value ? array() : explode( ',', esc_attr( $value ) );
     } else {
         return null;
     }
 
-    if ( count( $sane ) ) {
-        foreach ( $sane as &$entry ) {
-            $entry = esc_attr( $entry );
-            if ( $cast ){
-                $entry = (int)$entry;
-            }
+    foreach ( $sane as &$entry ) {
+        $entry = esc_attr( $entry );
+        if ( $cast ){
+            $entry = (int)$entry;
         }
-    } else {
-        return null;
     }
 
     return array_unique( $sane );
@@ -137,15 +133,49 @@ function clgs_to_array ( $value, $cast = false ) {
 function clgs_to_user ( $value ) {
     switch ( gettype( $value ) ) {
     case 'integer':
-        $value = get_user_by( 'id', $value );
+        $user = get_user_by( 'id', $value );
         break;
     case 'string':
-        $value = get_user_by( 'login', $value ) || get_user_by( 'slug', $value );
+        $user = get_user_by( 'login', $value );
+        if ( !$user ) $user = get_user_by( 'slug', $value );
         break;
     }
 
-    return is_a( $value, 'WP_User' ) ? $value->user_login : '';
+    return is_a( $user, 'WP_User' ) ? $user->user_login : '';
 }
+
+function clgs_prepare_data ($args) {
+    $data = array();
+
+    foreach ( clgs_get_item_schema('api') as $key => $rule ) {
+        if ( !isset ( $args[$key] ) ) {
+            if ( isset( $rule['default'] ) ) {
+                $data[$rule['db_key']] = $rule['default'];
+            } else {
+                return false;
+            }
+        } elseif ( 'user' == $key ) {
+            $data[$rule['db_key']] = clgs_to_user( $args['user'] );
+        } else {
+            $data[$rule['db_key']] = clgs_sanitize( $args[$key], $rule['sanitize'] );
+        }
+
+        if ( 'date' != $key && !clgs_validate( $data[$rule['db_key']], $rule['validate'] ) ) {
+            return false;
+        }
+    }
+
+	// get blog name
+	if( clgs_is_network_mode() ) {
+		switch_to_blog( $args['blog_id'] );
+        $data['blog_name'] = get_bloginfo( 'name' );
+		restore_current_blog();
+	} else {
+		$data['blog_name'] = get_bloginfo( 'name' );
+	}
+
+    return $data;
+} 
 
 /**
  * transforms DB log entries to an array suitable for output
