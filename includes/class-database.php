@@ -70,10 +70,13 @@ class Clgs_DB
      */
     function create() {
         global $wpdb, $charset_collate;
-        require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+
+        if ( ! function_exists( 'dbDelta' ) ) {
+            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        }
 
         dbDelta( "
-CREATE TABLE IF NOT EXISTS $this->logs_table_name (
+CREATE TABLE $this->logs_table_name (
     category VARCHAR(190) NOT NULL,
     description LONGTEXT,
     PRIMARY KEY  ( category )
@@ -81,7 +84,7 @@ CREATE TABLE IF NOT EXISTS $this->logs_table_name (
         );
 
         dbDelta( "
-CREATE TABLE IF NOT EXISTS $this->entries_table_name (
+CREATE TABLE $this->entries_table_name (
     id INT NOT NULL AUTO_INCREMENT,
     category VARCHAR(190) NOT NULL,
     blog_id INT NOT NULL,
@@ -92,8 +95,8 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
     text LONGTEXT,
     seen BOOL NOT NULL DEFAULT FALSE,
     PRIMARY KEY  ( id ),
-    KEY  ( category ),
-    KEY  ( date )
+    KEY clgs_idx_cat ( category ),
+    KEY clgs_idx_date ( date )
     ) $charset_collate;\n"
         );
     }
@@ -338,20 +341,23 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
                 $args[] = $value;
                 break;
             case 'seen':
-                if ( !$value ) $cond[] = 'seen = 0';
+                if ( !$value ) {
+                    $cond[] = 'seen = %d';
+                    $args[] = 0;
+                }
                 break;
             }
         }
         if( count( $cond ) > 0 ) {
-            $where = ' WHERE ' . implode( ' AND ', $cond );
+            $where_clause = 'WHERE ' . implode( ' AND ', $cond );
         } else {
-            $where = '';
+            $where_clause = '';
         }
 
         // LIMIT clause
-        if( $limit ) {
-            $args[] = $limit['from'];
+        if( $limit && !$count ) {
             $args[] = $limit['offset'];
+            $args[] = $limit['rowcount'];
             $limit = "LIMIT %d, %d";
         } else {
             $limit = "";
@@ -369,11 +375,11 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
         if ( $count ) {
             $query ="SELECT $what
             FROM $this->entries_table_name
-            $where";
+            $where_clause";
         } else {
             $query = "SELECT *
             FROM $this->entries_table_name
-            $where
+            $where_clause
             $order_by
             $limit";
         }
@@ -381,7 +387,7 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
             $query = $wpdb->prepare( $query, $args );
         }
 
-       if( $count ) {
+        if( $count ) {
             return $wpdb->get_row( $query );
         } else {
             return $wpdb->get_results( $query );
@@ -409,7 +415,7 @@ CREATE TABLE IF NOT EXISTS $this->entries_table_name (
         if ( !count( $entry_ids ) ) {
             return false;
         }
-        $where = "WHERE id IN (" . implode( ", ", $entry_ids ) . ")";
+        $where = "WHERE id IN (" . implode( ",", $entry_ids ) . ")";
         switch ( $what ) {
         case 'delete':
            $clgs_last_log->flush();
