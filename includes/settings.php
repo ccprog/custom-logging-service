@@ -60,13 +60,13 @@ function clgs_settings_defaults () {
  * @return void
  */
 function clgs_add_settings ( $network_wide ) {
-    $settings_defaults = clgs_settings_defaults();
+    $settings = clgs_get_settings();
     if ( !$network_wide ) {
-        foreach ( clgs_get_settings()['manager_role'] as $key => $name ) {
+        foreach ( $settings['manager_role'] as $key => $name ) {
             wp_roles()->add_cap( $name, CLGS_CAP );
         }
     }
-    add_site_option( CLGS_SETTINGS, $settings_defaults );
+    add_site_option( CLGS_SETTINGS, $settings );
 }
 
 /**
@@ -184,13 +184,13 @@ function clgs_field_render( $args ) {
     if ( 'log_entries_per_page' == $id ) {
 
 ?>
-    <input type="text" name="<?php echo CLGS_SETTINGS . "[$id]"; ?>" value="<?php echo $options[$id]; ?>">
+    <input type="text" name="<?php echo CLGS_SETTINGS . "[$id]"; ?>" value="<?php echo $options[$id]; ?>" />
 <?php
 
     } elseif ( 'manager_role' == $id ) {
         $name_attr = CLGS_SETTINGS . "[$id][]";
         foreach ( wp_roles()->get_names() as $key => $name ) {
-            $checked = in_array( $key, $options[$id] ) ? 'checked ' : '';
+            $checked = in_array( $key, $options[$id] ) ? 'checked="" ' : '';
             echo "<label><input type=\"checkbox\" name=\"$name_attr\" value=\"$key\" $checked/>";
             echo translate_user_role( $name ) . "</label><br/>";
         }
@@ -227,11 +227,11 @@ function clgs_field_render( $args ) {
 function clgs_update_capabilities ( $old_value, $value ) {
     $removed = array_diff( $old_value['manager_role'], $value['manager_role'] );
     foreach ($removed as $name ) {
-        get_role( $name )->remove_cap( CLGS_CAP );
+        wp_roles()->remove_cap( $name, CLGS_CAP );
     }
     $added = array_diff( $value['manager_role'], $old_value['manager_role'] );
     foreach ($added as $name ) {
-        get_role( $name )->add_cap( CLGS_CAP );
+        wp_roles()->add_cap( $name, CLGS_CAP );
     }
 }
 add_action ( "update_option_" . CLGS_SETTINGS, 'clgs_update_capabilities', 10, 2 );

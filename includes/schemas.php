@@ -112,7 +112,6 @@ function clgs_get_item_schema ( $purpose ) {
             'rest'        => array(
                 'description'  => __( 'Gravatar <img> tag of the user.' ),
                 'type'         => 'string',
-                'required'     => true,
             ),
             'column'      => false,
         ),
@@ -135,7 +134,6 @@ function clgs_get_item_schema ( $purpose ) {
             'rest'         => array(
                 'description'  => __( 'Link to blog', 'custom-logging-service' ),
                 'type'         => 'string',
-                'required'     => true,
             ),
             'column'      => array(
                 'target'      => 'blog_name',
